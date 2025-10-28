@@ -120,8 +120,8 @@ prototipo_interfaz_admin/
 
 1. **Clonar el repositorio**
 ```bash
-git clone https://github.com/BenjaUribe/prototipo_interfaz_admin.git
-cd prototipo_interfaz_admin
+git clone [https://github.com/BenjaUribe/prototipo_interfaz_admin.git](https://github.com/sophiasearch-2025/admin-interface)
+cd admin-interface
 ```
 
 2. **Instalar dependencias**
