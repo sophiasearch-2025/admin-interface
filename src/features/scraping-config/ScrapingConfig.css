@@ -1,0 +1,517 @@
+.data-feature{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #1d1d1b;
+}
+
+.data-feature h1 {
+    color: #f2f2f2;
+    margin: 20px;
+    margin-bottom: 10px;
+}
+
+/* Estilos para la barra de pestañas */
+.tab-bar {
+    display: flex;
+    border-bottom: 1px solid #444;
+    margin: 0 20px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 15px 25px;
+    color: #aaa;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tab-button:hover {
+    color: #f2f2f2;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tab-button.active {
+    color: #f2f2f2;
+    border-bottom-color: rgba(42, 49, 118, 0.8);;
+    background-color: #2a3176;
+}
+
+/* Contenedor del contenido de las pestañas */
+.tab-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.tab-content {
+    color: #f2f2f2;
+}
+
+.tab-content h3 {
+    color: #f2f2f2;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+/* Estilos para formularios */
+.sources-section,
+.rules-section,
+.schedule-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.source-item,
+.rule-item,
+.schedule-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.source-item label,
+.rule-item label,
+.schedule-item label {
+    color: #ccc;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.input-field,
+.select-field,
+.textarea-field {
+    padding: 12px;
+    background-color: #2d2d2d;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #f2f2f2;
+    font-size: 14px;
+}
+
+.input-field:focus,
+.select-field:focus,
+.textarea-field:focus {
+    outline: none;
+    border-color: #f2f2f2;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.textarea-field {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.btn-primary {
+    background-color: #2a3176;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    align-self: flex-start;
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    background-color: #2a3176;
+}
+
+/* Estilos para checkboxes */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 8px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ccc;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Estilos para la lista de fuentes */
+.sources-list {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #444;
+}
+
+/* Estilos para el colapsable */
+.collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.collapsible-header:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.collapsible-header h4 {
+    color: #f2f2f2;
+    margin: 0;
+    font-size: 16px;
+}
+
+.collapse-arrow {
+    color: #f2f2f2;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    user-select: none;
+}
+
+.collapse-arrow.expanded {
+    transform: rotate(180deg);
+}
+
+.collapsible-content {
+    animation: slideDown 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+        transform: translateY(0);
+    }
+}
+
+.no-sources {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border: 1px dashed #555;
+}
+
+.sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.source-card {
+    background-color: #2d2d2d;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.source-card:hover {
+    border-color: #2a3176;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.source-info {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.source-name {
+    color: #f2f2f2;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+    word-wrap: break-word;
+}
+
+.source-url {
+    color: #aaa;
+    font-size: 12px;
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: #ff4444;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-delete:hover {
+    background-color: rgba(255, 68, 68, 0.2);
+    transform: scale(1.1);
+}
+
+.add-source-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #444;
+}
+
+.add-source-section h4 {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.btn-primary:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-primary:disabled:hover {
+    background-color: #666;
+}
+
+/* Estilos para programación */
+.manual-section {
+    padding: 20px 0;
+}
+
+.confirm-section {
+    padding: 20px;
+    background-color: rgba(255, 193, 7, 0.1);
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    margin-top: 15px;
+}
+
+.confirm-message {
+    color: #f2f2f2;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-secondary {
+    background-color: #666;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #555;
+}
+
+/* Estilos para radio buttons */
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 8px;
+}
+
+.radio-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #f2f2f2;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.radio-item input[type="radio"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Estilos para área de drag & drop */
+.drop-zone {
+    border: 2px dashed #666;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin: 20px 0;
+}
+
+.drop-zone.dragging {
+    border-color: #2a3176;
+    background-color: #4b54a0;
+    transform: scale(1.02);
+}
+
+.drop-zone.has-file {
+    border-color: #2a3176;
+    background-color: #ffffff00;
+}
+
+.drop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.drop-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.drop-content h4 {
+    color: #f2f2f2;
+    margin: 0;
+    font-size: 18px;
+}
+
+.drop-content p {
+    color: #aaa;
+    margin: 0;
+    font-size: 14px;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-label {
+    background-color: #2a3176;
+    color: #f2f2f2;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+.file-label:hover {
+    background-color: rgba(42, 49, 118, 0.8);
+}
+
+.file-requirements {
+    margin-top: 10px;
+}
+
+.file-requirements small {
+    color: #888;
+    font-style: italic;
+}
+
+/* Estilos para información del archivo */
+.file-info {
+    text-align: left;
+    width: 100%;
+}
+
+.file-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+.file-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-icon {
+    font-size: 24px;
+}
+
+.file-name {
+    color: #f2f2f2;
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.file-size {
+    color: #aaa;
+    font-size: 12px;
+}
+
+/* Estilos para preview del código */
+.code-preview {
+    margin: 20px 0;
+}
+
+.code-preview h6 {
+    color: #f2f2f2;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+}
+
+.code-content {
+    background-color: #2d2d2d;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #f2f2f2;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.code-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.code-content::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.code-content::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.code-content::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}

@@ -1,0 +1,73 @@
+/* Scrollbar para navegadores modernos */
+.content, .layout, .feature-container {
+  scrollbar-width: thin;
+  scrollbar-color: #44cfe2 #1d1d1d;
+}
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #ffffff;
+  color: #333;
+}
+
+.layout-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  background-color: #1d1d1b;
+  overflow-y: hidden;
+  transition: margin-left 0.3s ease;
+}
+
+.content-expanded {
+  margin-left: 0;
+}
+
+.feature-container {
+  max-width: 100%;
+}
+
+.feature-container h1 {
+  color: #f2f2f2;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.feature-container p {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* Personalización global de scrollbar (opcional) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+.content, .layout, .feature-container {
+  scrollbar-width: thin;
+  scrollbar-color: #44cfe2 #1d1d1d;
+}
+
+::-webkit-scrollbar-track {
+  background: #1d1d1d;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #44cfe2;
+  border-radius: 6px;
+  border: 2px solid #1d1d1d;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #44cfe2;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #44cfe2;
+}
