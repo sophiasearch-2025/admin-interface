@@ -1,0 +1,15 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: frontend_vite
+    ports:
+      - "3003:80"
+    networks:
+      - red_arqui
+    restart: unless-stopped
+
+networks:
+  red_arqui:
+    external: true
