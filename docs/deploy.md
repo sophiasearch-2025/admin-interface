@@ -7,6 +7,8 @@
 - **npm**: versión 8.0 o superior (incluido con Node.js)
 - **Git**: para clonar el repositorio
 - **Navegador web moderno**: Chrome 92+, Firefox 91+, Safari 14.1+, Edge 92+
+- docker-compose
+- docker
 
 ### Verificar instalaciones
 ```bash
@@ -25,50 +27,13 @@ git --version     # Cualquier versión reciente
    cd admin-interface
    ```
 
-2. **Instalar dependencias**
-   ```bash
-   npm install
-   ```
+2. asegurarse que existe la red |red_arqui|, sino
+docker network create red_arqui
 
-3. **Verificar la instalación**
-   ```bash
-   npm list --depth=0
-   ```
+3. ejecutar 
+docker-compose up -d --build
 
-### Comandos opcionales o instrucciones de entorno virtual
-
-**Configuración de desarrollo**:
-```bash
-# Limpiar cache de npm (si hay problemas)
-npm cache clean --force
-
-# Instalar dependencias desde cero
-rm -rf node_modules package-lock.json
-npm install
-
-```
-
-## 3. Despliegue / ejecución
-
-### Comandos para desplegar
-
-**Desarrollo local**:
-```bash
-# Iniciar servidor de desarrollo
-npm run dev
-
-# El servidor estará disponible en:
-# http://localhost:5173
-```
-
-**Build para producción**:
-```bash
-# Generar build optimizado
-npm run build
-
-# Previsualizar build de producción
-npm run preview
-```
+4. acceder a ip:3003
 
 ## 4. Pruebas y verificación
 
@@ -117,14 +82,6 @@ npm run preview
 - Navegación fluida sin errores en consola
 - Responsive design funciona en móviles
 
-**Troubleshooting común**:
-
-| Problema | Solución |
-|----------|----------|
-| Puerto 5173 ocupado | Usar `npm run dev -- --port 3000` |
-| Errores de TypeScript | Verificar `npm run type-check` |
-| Styles no cargan | Limpiar cache del navegador |
-| Build falla | Verificar `npm run build` para errores |
 
 **Logs importantes**:
 ```bash
@@ -138,10 +95,3 @@ npm run build 2>&1 | tee build.log
 npm run build -- --analyze
 ```
 
-**Métricas esperadas**:
-- **Bundle size**: < 500KB
-- **First Contentful Paint**: < 1s
-- **Time to Interactive**: < 2s
-- **Lighthouse Score**: > 90/100
-
----
