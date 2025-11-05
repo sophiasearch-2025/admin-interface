@@ -1,19 +1,13 @@
 # admin-interface
 
 ## 1. Propósito
-Interfaz administrativa para la gestión centralizada de datos y estadísticas de noticias, proporcionando herramientas para la administración de usuarios, configuración de procesos de web scraping, gestión de archivos multimedia y sistema de respaldos automatizado.
+Interfaz administrativa para la gestión centralizada de datos y estadísticas de noticias, proporcionando herramientas para la administración de usuarios, configuración de procesos de web scraping y sistema de respaldos automatizado.
 
-Ejemplo:
-- Este subsistema gestiona la consulta y análisis de noticias indexadas, proporcionando herramientas de corrección y validación de contenido.
 
 ## 2. Interacción con otros subsistemas
-Indica qué otros subsistemas consumen o proveen servicios a este subsistema.
-- Explicar brevemente el flujo de datos general.
+- **user-subscription-manager** : Obtenemos el listado de los usuarios registrados, para poder gestionarlos en el modulo **user-management**
+- **news-query-analysis** : Obtenemos las noticias que se recolectaron, junto con sus metadatos y metricas
 
-Ejemplo:
-- Recibe consultas desde el subsistema de interfaz de usuario.
-- Consulta el sistema de almacenamiento para obtener datos de noticias.
-- Retorna resultados al cliente o al subsistema de análisis.
 
 ## 3. Documentación interna
 Enlace a los documentos principales del subsistema:
