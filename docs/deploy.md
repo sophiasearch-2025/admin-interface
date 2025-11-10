@@ -42,7 +42,7 @@ docker-compose up -d --build
 **Verificaciones básicas**:
 
 1. **Acceso a la aplicación**
-   - Abrir navegador en `http://localhost:5173`
+   - Abrir navegador en `172.105.21.15:3003`
    - Verificar que carga la pantalla de login
 
 2. **Prueba de autenticación**
