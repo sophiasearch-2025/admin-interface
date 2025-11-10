@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import './UserManagement.css';
+import { getAllSubscriptions, testApiConnection } from '../../services/subscriptions';
+import type { Subscription } from '../../services/subscriptions';
 
 interface Usuario {
-  id: number;
+  id: string; // Cambiado a string para coincidir con Subscription
   nombre: string;
   email: string;
   estado: 'activo' | 'suspendido';
   avatar?: string;
+  plan?: string; // Agregamos plan de suscripción
 }
 
 const UserManagement = () => {
@@ -15,40 +18,57 @@ const UserManagement = () => {
   const [busqueda, setBusqueda] = useState('');
   const [cargando, setCargando] = useState(true);
 
-  // Simulación de datos de usuarios (en producción vendría de una API)
-  const usuariosMock: Usuario[] = [
-    { id: 1, nombre: 'Ana García', email: 'ana.garcia@email.com', estado: 'activo' },
-    { id: 2, nombre: 'Carlos Rodríguez', email: 'carlos.rodriguez@email.com', estado: 'activo' },
-    { id: 3, nombre: 'María López', email: 'maria.lopez@email.com', estado: 'suspendido' },
-    { id: 4, nombre: 'Juan Pérez', email: 'juan.perez@email.com', estado: 'activo' },
-    { id: 5, nombre: 'Sofia Martínez', email: 'sofia.martinez@email.com', estado: 'activo' },
-    { id: 6, nombre: 'Diego Fernández', email: 'diego.fernandez@email.com', estado: 'suspendido' },
-    { id: 7, nombre: 'Laura Castro', email: 'laura.castro@email.com', estado: 'activo' },
-    { id: 8, nombre: 'Roberto Silva', email: 'roberto.silva@email.com', estado: 'activo' },
-    { id: 9, nombre: 'Carmen Jiménez', email: 'carmen.jimenez@email.com', estado: 'activo' },
-    { id: 10, nombre: 'Pedro Morales', email: 'pedro.morales@email.com', estado: 'suspendido' },
-    { id: 11, nombre: 'Isabel Torres', email: 'isabel.torres@email.com', estado: 'activo' },
-    { id: 12, nombre: 'Miguel Herrera', email: 'miguel.herrera@email.com', estado: 'activo' }
-  ];
+  // Función para convertir suscripciones de la API a formato Usuario
+  const convertirSuscripcionAUsuario = (subscription: Subscription): Usuario => {
+    return {
+      id: subscription.id,
+      nombre: subscription.userId || `Usuario-${subscription.id.slice(0, 8)}`, // Usar userId o parte del ID
+      email: subscription.userId || 'sin-email@ejemplo.com', // Por ahora usar userId como email
+      estado: subscription.status === 'active' ? 'activo' : 'suspendido',
+      plan: subscription.plan || subscription.description || 'No definido'
+    };
+  };
 
-  // Simulación de carga de datos desde API
+  // Carga real de datos desde la API
   useEffect(() => {
-    const cargarUsuarios = async () => {
+    const cargarSuscripciones = async () => {
       setCargando(true);
       
-      // Simular delay de API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // En producción sería algo como:
-      // const response = await fetch('/api/usuarios');
-      // const data = await response.json();
-      
-      setUsuarios(usuariosMock);
-      setUsuariosFiltrados(usuariosMock);
-      setCargando(false);
+      try {
+        console.log('Intentando conectar con la API...');
+        
+        // Primero probar si la API está disponible
+        const apiDisponible = await testApiConnection();
+        
+        if (apiDisponible) {
+          console.log('API disponible, obteniendo suscripciones...');
+          
+          // Obtener suscripciones reales
+          const suscripciones = await getAllSubscriptions();
+          
+          // Convertir suscripciones a formato Usuario
+          const usuariosDesdeAPI = suscripciones.map(convertirSuscripcionAUsuario);
+          
+          setUsuarios(usuariosDesdeAPI);
+          setUsuariosFiltrados(usuariosDesdeAPI);
+          
+          console.log('Datos cargados:', usuariosDesdeAPI.length, 'suscripciones');
+        } else {
+          console.log('API no disponible, mostrando mensaje de error');
+          setUsuarios([]);
+          setUsuariosFiltrados([]);
+        }
+        
+      } catch (error) {
+        console.error('Error al cargar suscripciones:', error);
+        setUsuarios([]);
+        setUsuariosFiltrados([]);
+      } finally {
+        setCargando(false);
+      }
     };
 
-    cargarUsuarios();
+    cargarSuscripciones();
   }, []);
 
   // Filtrar usuarios basado en la búsqueda
@@ -65,7 +85,7 @@ const UserManagement = () => {
     // Aquí abrir modal o navegar a página de logs
   };
 
-  const cambiarEstadoUsuario = (id: number) => {
+  const cambiarEstadoUsuario = (id: string) => {
     const usuariosActualizados = usuarios.map(usuario => {
       if (usuario.id === id) {
         const nuevoEstado: 'activo' | 'suspendido' = usuario.estado === 'activo' ? 'suspendido' : 'activo';
