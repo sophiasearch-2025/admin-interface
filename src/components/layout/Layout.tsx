@@ -8,7 +8,6 @@ import './Layout.css';
 import DataManagement from '../../features/data-management/DataManagement';
 import MediaManagement from '../../features/media-management/MediaManagement';
 import ScrapingConfig from '../../features/scraping-config/ScrapingConfig';
-import ErrorNotifications from '../../features/error-notifications/ErrorNotifications';
 import BackupManagement from '../../features/backup-management/BackupManagement';
 import UserManagement from '../../features/user-management/UserManagement';
 
@@ -24,8 +23,6 @@ const Layout = () => {
         return <MediaManagement />;
       case 'scraping-config':
         return <ScrapingConfig />;
-      case 'error-notifications':
-        return <ErrorNotifications />;
       case 'backup-management':
         return <BackupManagement />;
       case 'user-management':
