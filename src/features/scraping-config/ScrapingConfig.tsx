@@ -12,7 +12,7 @@ interface Fuente {
 const mockRows = Array(60).fill("Información de error");
 
 const ScrapingConfig = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('fuentes');
+  const [activeTab, setActiveTab] = useState<TabType>('programacion');
   const [fuentes, setFuentes] = useState<Fuente[]>([]);
   const [nombreFuente, setNombreFuente] = useState('');
   const [urlFuente, setUrlFuente] = useState('');
@@ -20,7 +20,7 @@ const ScrapingConfig = () => {
   const [isSourcesExpanded, setIsSourcesExpanded] = useState(false);
   
   // Estados para programación
-  const [frecuencia, setFrecuencia] = useState('');
+  const [frecuencia, setFrecuencia] = useState('manual');
   const [diaSeleccionado, setDiaSeleccionado] = useState('');
   const [horaEjecucion, setHoraEjecucion] = useState('');
   const [diaDelMes, setDiaDelMes] = useState('');
