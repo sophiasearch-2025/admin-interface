@@ -199,19 +199,19 @@ const DataManagement = () => {
           <div className='sidebar-content'>
             <div className="stats-grid">
               <div className="stat-item">
-                <img src="src/features/data-management/data/grafico1.svg" alt="Gráfico 1" className="stat-image" />
+                <img src="/images/charts/grafico1.svg" alt="Gráfico 1" className="stat-image" />
               </div>
               
               <div className="stat-item">
-                <img src="src/features/data-management/data/grafico2.svg" alt="Gráfico 2" className="stat-image" />
+                <img src="/images/charts/grafico2.svg" alt="Gráfico 2" className="stat-image" />
               </div>
               
               <div className="stat-item">
-                <img src="src/features/data-management/data/grafico3.svg" alt="Gráfico 3" className="stat-image" />
+                <img src="/images/charts/grafico3.svg" alt="Gráfico 3" className="stat-image" />
               </div>
               
               <div className="stat-item">
-                <img src="src/features/data-management/data/grafico4.svg" alt="Gráfico 4" className="stat-image" />
+                <img src="/images/charts/grafico4.svg" alt="Gráfico 4" className="stat-image" />
               </div>
             </div>
           </div>

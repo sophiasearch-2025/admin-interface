@@ -18,11 +18,6 @@ const UserManagement = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<'todos' | 'activo' | 'suspendido'>('todos');
   const [cargando, setCargando] = useState(true);
-  const [boletaModal, setBoletaModal] = useState<{ visible: boolean; url: string; nombre: string }>({
-    visible: false,
-    url: '',
-    nombre: ''
-  });
 
   // Función para convertir suscripciones de la API a formato Usuario
   const convertirSuscripcionAUsuario = (subscription: Subscription): Usuario => {
@@ -196,7 +191,7 @@ const UserManagement = () => {
                   </button>
                   <button 
                     className="btn-boleta"
-                    onClick={() => verBoleta(usuario)}
+                    onClick={() => {/* Funcionalidad pendiente de implementar */}}
                   >
                     🎫 Ver Boleta
                   </button>
@@ -212,27 +207,6 @@ const UserManagement = () => {
           </div>
         )}
       </div>
-
-      {/* Modal para mostrar la boleta */}
-      {boletaModal.visible && (
-        <div className="boleta-modal-overlay" onClick={cerrarModal}>
-          <div className="boleta-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="boleta-modal-header">
-              <h2>Boleta de {boletaModal.nombre}</h2>
-              <button className="btn-close-modal" onClick={cerrarModal}>
-                ✕
-              </button>
-            </div>
-            <div className="boleta-modal-body">
-              <img 
-                src={boletaModal.url} 
-                alt={`Boleta de ${boletaModal.nombre}`}
-                className="boleta-image"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
