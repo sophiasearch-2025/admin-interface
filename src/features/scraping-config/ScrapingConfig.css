@@ -515,3 +515,36 @@
 .code-content::-webkit-scrollbar-thumb:hover {
     background: #666;
 }
+
+.error-table{
+    width: 100%;
+    height: 90%;
+    color: #f2f2f2;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.error-table th,
+.error-table td {
+    border-top: 3px solid #343434;
+    border-bottom: 3px solid #343434;
+    padding: 5px;
+}
+
+.error-table th{
+  background-color: #2a3176;
+  border: 0px solid #2a3176;
+  font-weight: bold;  
+  position: sticky;
+  top: 0;
+}
+
+.error-table th:first-child {
+  width: 60px; 
+}
+
+
+.error-table-scroll {
+  height: 68vh;
+  overflow-y: auto;
+}

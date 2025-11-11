@@ -12,8 +12,7 @@ interface SidebarProps {
 const navigationItems = [
   { id: 'data-management' as ActiveView, title: 'Gestión de datos', shortName: 'GD' },
   { id: 'media-management' as ActiveView, title: 'Gestión de medios', shortName: 'GM' },
-  { id: 'scraping-config' as ActiveView, title: 'Configurar Scraping', shortName: 'CS' },
-  { id: 'error-notifications' as ActiveView, title: 'Notificación de errores', shortName: 'NE' },
+  { id: 'scraping-config' as ActiveView, title: 'Gestión de Scraping', shortName: 'GS' },
   { id: 'backup-management' as ActiveView, title: 'Gestión de respaldos', shortName: 'GR' },
   { id: 'user-management' as ActiveView, title: 'Gestión de usuarios', shortName: 'GU' },
 ];
