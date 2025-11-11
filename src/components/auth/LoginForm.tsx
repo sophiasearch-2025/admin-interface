@@ -73,7 +73,7 @@ const LoginForm: React.FC = () => {
                     </div>
                 </div>
                 <footer className="login-footer">
-                    <img src="public/LogoSophia.svg" alt="Logo" className="footer-logo" />
+                    <img src="/images/logos/LogoSophia.svg" alt="Logo" className="footer-logo" />
                 </footer>
             </div>
             

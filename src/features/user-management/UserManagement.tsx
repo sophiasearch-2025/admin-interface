@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import './UserManagement.css';
+import { getAllSubscriptions, testApiConnection, cancelSubscription, renewSubscription, getSubscriptionById } from '../../services/subscriptions';
+import type { Subscription } from '../../services/subscriptions';
 
 interface Usuario {
-  id: number;
+  id: string; // Cambiado a string para coincidir con Subscription
   nombre: string;
   email: string;
   estado: 'activo' | 'suspendido';
   avatar?: string;
-  boletaUrl?: string;
+  plan?: string; // Agregamos plan de suscripción
 }
 
 const UserManagement = () => {
@@ -16,46 +18,58 @@ const UserManagement = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<'todos' | 'activo' | 'suspendido'>('todos');
   const [cargando, setCargando] = useState(true);
-  const [boletaModal, setBoletaModal] = useState<{ visible: boolean; url: string; nombre: string }>({
-    visible: false,
-    url: '',
-    nombre: ''
-  });
 
-  // Simulación de datos de usuarios (en producción vendría de una API)
-  const usuariosMock: Usuario[] = [
-    { id: 1, nombre: 'Ana García', email: 'ana.garcia@email.com', estado: 'activo', boletaUrl: '/boletas/ana_garcia.png' },
-    { id: 2, nombre: 'Carlos Rodríguez', email: 'carlos.rodriguez@email.com', estado: 'activo', boletaUrl: '/boletas/carlos_rodriguez.png' },
-    { id: 3, nombre: 'María López', email: 'maria.lopez@email.com', estado: 'suspendido', boletaUrl: '/boletas/maria_lopez.png' },
-    { id: 4, nombre: 'Juan Pérez', email: 'juan.perez@email.com', estado: 'activo', boletaUrl: '/boletas/juan_perez.png' },
-    { id: 5, nombre: 'Sofia Martínez', email: 'sofia.martinez@email.com', estado: 'activo', boletaUrl: '/boletas/sofia_martinez.png' },
-    { id: 6, nombre: 'Diego Fernández', email: 'diego.fernandez@email.com', estado: 'suspendido', boletaUrl: '/boletas/diego_fernandez.png' },
-    { id: 7, nombre: 'Laura Castro', email: 'laura.castro@email.com', estado: 'activo', boletaUrl: '/boletas/laura_castro.png' },
-    { id: 8, nombre: 'Roberto Silva', email: 'roberto.silva@email.com', estado: 'activo', boletaUrl: '/boletas/roberto_silva.png' },
-    { id: 9, nombre: 'Carmen Jiménez', email: 'carmen.jimenez@email.com', estado: 'activo', boletaUrl: '/boletas/carmen_jimenez.png' },
-    { id: 10, nombre: 'Pedro Morales', email: 'pedro.morales@email.com', estado: 'suspendido', boletaUrl: '/boletas/pedro_morales.png' },
-    { id: 11, nombre: 'Isabel Torres', email: 'isabel.torres@email.com', estado: 'activo', boletaUrl: '/boletas/isabel_torres.png' },
-    { id: 12, nombre: 'Miguel Herrera', email: 'miguel.herrera@email.com', estado: 'activo', boletaUrl: '/boletas/miguel_herrera.png' }
-  ];
+  // Función para convertir suscripciones de la API a formato Usuario
+  const convertirSuscripcionAUsuario = (subscription: Subscription): Usuario => {
+    return {
+      id: subscription.id,
+      nombre: subscription.userId || `Usuario-${subscription.id.slice(0, 8)}`, // Usar userId o parte del ID
+      email: subscription.userId || 'sin-email@ejemplo.com', // Por ahora usar userId como email
+      estado: subscription.status === 'active' ? 'activo' : 'suspendido',
+      plan: subscription.plan || subscription.description || 'No definido'
+    };
+  };
 
-  // Simulación de carga de datos desde API
+  // Carga real de datos desde la API
   useEffect(() => {
-    const cargarUsuarios = async () => {
+    const cargarSuscripciones = async () => {
       setCargando(true);
       
-      // Simular delay de API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // En producción sería algo como:
-      // const response = await fetch('/api/usuarios');
-      // const data = await response.json();
-      
-      setUsuarios(usuariosMock);
-      setUsuariosFiltrados(usuariosMock);
-      setCargando(false);
+      try {
+        console.log('Intentando conectar con la API...');
+        
+        // Primero probar si la API está disponible
+        const apiDisponible = await testApiConnection();
+        
+        if (apiDisponible) {
+          console.log('API disponible, obteniendo suscripciones...');
+          
+          // Obtener suscripciones reales
+          const suscripciones = await getAllSubscriptions();
+          
+          // Convertir suscripciones a formato Usuario
+          const usuariosDesdeAPI = suscripciones.map(convertirSuscripcionAUsuario);
+          
+          setUsuarios(usuariosDesdeAPI);
+          setUsuariosFiltrados(usuariosDesdeAPI);
+          
+          console.log('Datos cargados:', usuariosDesdeAPI.length, 'suscripciones');
+        } else {
+          console.log('API no disponible, mostrando mensaje de error');
+          setUsuarios([]);
+          setUsuariosFiltrados([]);
+        }
+        
+      } catch (error) {
+        console.error('Error al cargar suscripciones:', error);
+        setUsuarios([]);
+        setUsuariosFiltrados([]);
+      } finally {
+        setCargando(false);
+      }
     };
 
-    cargarUsuarios();
+    cargarSuscripciones();
   }, []);
 
   // Filtrar usuarios basado en la búsqueda y el estado
@@ -78,40 +92,99 @@ const UserManagement = () => {
     // Aquí abrir modal o navegar a página de logs
   };
 
-  const verBoleta = (usuario: Usuario) => {
-    if (usuario.boletaUrl) {
-      setBoletaModal({
-        visible: true,
-        url: usuario.boletaUrl,
-        nombre: usuario.nombre
-      });
-    } else {
-      alert(`No hay boleta disponible para ${usuario.nombre}`);
-    }
-  };
+  const cambiarEstadoUsuario = async (id: string) => {
+    const usuario = usuarios.find(u => u.id === id);
+    if (!usuario) return;
 
-  const cerrarModal = () => {
-    setBoletaModal({
-      visible: false,
-      url: '',
-      nombre: ''
-    });
-  };
-
-  const cambiarEstadoUsuario = (id: number) => {
-    const usuariosActualizados = usuarios.map(usuario => {
-      if (usuario.id === id) {
-        const nuevoEstado: 'activo' | 'suspendido' = usuario.estado === 'activo' ? 'suspendido' : 'activo';
-        const accion = nuevoEstado === 'suspendido' ? 'suspendida' : 'reactivada';
-        
-        alert(`Cuenta ${accion} exitosamente para ${usuario.nombre}`);
-        
-        return { ...usuario, estado: nuevoEstado };
-      }
-      return usuario;
-    });
+    const nuevoEstado: 'activo' | 'suspendido' = usuario.estado === 'activo' ? 'suspendido' : 'activo';
+    const accion = nuevoEstado === 'suspendido' ? 'suspender' : 'reactivar';
     
-    setUsuarios(usuariosActualizados);
+    // Confirmar la acción con el usuario
+    if (!confirm(`¿Estás seguro de que deseas ${accion} la cuenta de ${usuario.nombre}?`)) {
+      return;
+    }
+
+    try {
+      let resultado = false;
+      let estadoCambioEnAPI = false;
+
+      if (nuevoEstado === 'suspendido') {
+        // Suspender = Cancelar suscripción en la API
+        console.log('🔴 Intentando suspender suscripción:', id);
+        resultado = await cancelSubscription(id);
+        
+        // Verificar si realmente cambió en la base de datos
+        if (resultado) {
+          console.log('⏳ Esperando 1 segundo para verificar el cambio...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const suscripcionActualizada = await getSubscriptionById(id);
+          console.log('🔍 Estado después de cancelar:', suscripcionActualizada?.status);
+          
+          if (suscripcionActualizada?.status === 'cancelled' || suscripcionActualizada?.status === 'canceled') {
+            console.log('✅ El status SÍ cambió a cancelled/canceled');
+            estadoCambioEnAPI = true;
+          } else {
+            console.log('⚠️ ADVERTENCIA: El status NO cambió. Sigue como:', suscripcionActualizada?.status);
+            console.log('⚠️ Esto indica que la API no está actualizando el campo status en Firestore');
+            estadoCambioEnAPI = false;
+          }
+        }
+      } else {
+        // Reactivar = Renovar suscripción en la API (30 días por defecto)
+        console.log('🟢 Intentando reactivar suscripción:', id);
+        resultado = await renewSubscription(id, 30);
+        
+        // Verificar si realmente cambió
+        if (resultado) {
+          console.log('⏳ Esperando 1 segundo para verificar el cambio...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const suscripcionActualizada = await getSubscriptionById(id);
+          console.log('🔍 Estado después de renovar:', suscripcionActualizada?.status);
+          
+          if (suscripcionActualizada?.status === 'active') {
+            console.log('✅ El status SÍ cambió a active');
+            estadoCambioEnAPI = true;
+          } else {
+            console.log('⚠️ ADVERTENCIA: El status NO cambió después de renovar');
+            estadoCambioEnAPI = false;
+          }
+        }
+      }
+
+      // Recargar las suscripciones desde la API
+      console.log('🔄 Recargando datos desde la API...');
+      const suscripcionesActualizadas = await getAllSubscriptions();
+      const usuariosActualizados = suscripcionesActualizadas.map(convertirSuscripcionAUsuario);
+      setUsuarios(usuariosActualizados);
+
+      if (resultado && estadoCambioEnAPI) {
+        // Todo funcionó correctamente
+        const mensajeExito = nuevoEstado === 'suspendido' ? 'suspendida' : 'reactivada';
+        alert(`✅ Cuenta ${mensajeExito} exitosamente para ${usuario.nombre}`);
+      } else if (resultado && !estadoCambioEnAPI) {
+        // La API respondió OK pero no actualizó el campo status
+        alert(
+          `PROBLEMA CON LA API DE SUSCRIPCIONES\n\n` +
+          `La solicitud fue enviada exitosamente, pero el campo "status" NO se actualizó en la base de datos.\n\n` +
+          `CAUSA: La API no tiene implementado un endpoint PATCH para actualizar el estado de las suscripciones.\n\n`
+        );
+      } else {
+        alert(`❌ Error al ${accion} la cuenta. La API no respondió correctamente.`);
+      }
+    } catch (error) {
+      console.error('❌ Error al cambiar estado del usuario:', error);
+      alert(
+        `❌ ERROR DE CONEXIÓN\n\n` +
+        `No se pudo ${accion} la cuenta de ${usuario.nombre}.\n\n` +
+        `Posibles causas:\n` +
+        `• La API no está disponible\n` +
+        `• Problemas de red\n` +
+        `• El endpoint no existe\n\n` +
+        `Verifica la consola del navegador (F12) para más detalles.`
+      );
+    }
   };
 
   const getIniciales = (nombre: string) => {
@@ -197,7 +270,7 @@ const UserManagement = () => {
                   </button>
                   <button 
                     className="btn-boleta"
-                    onClick={() => verBoleta(usuario)}
+                    onClick={() => {/* Funcionalidad pendiente de implementar */}}
                   >
                     🎫 Ver Boleta
                   </button>
@@ -213,27 +286,6 @@ const UserManagement = () => {
           </div>
         )}
       </div>
-
-      {/* Modal para mostrar la boleta */}
-      {boletaModal.visible && (
-        <div className="boleta-modal-overlay" onClick={cerrarModal}>
-          <div className="boleta-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="boleta-modal-header">
-              <h2>Boleta de {boletaModal.nombre}</h2>
-              <button className="btn-close-modal" onClick={cerrarModal}>
-                ✕
-              </button>
-            </div>
-            <div className="boleta-modal-body">
-              <img 
-                src={boletaModal.url} 
-                alt={`Boleta de ${boletaModal.nombre}`}
-                className="boleta-image"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

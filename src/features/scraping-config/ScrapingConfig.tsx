@@ -1,13 +1,15 @@
 import './ScrapingConfig.css';
 import { useState } from 'react';
 
-type TabType = 'fuentes' | 'reglas' | 'programacion';
+type TabType = 'fuentes' | 'reglas' | 'programacion' | 'errores';
 
 interface Fuente {
   id: number;
   nombre: string;
   url: string;
 }
+
+const mockRows = Array(60).fill("Información de error");
 
 const ScrapingConfig = () => {
   const [activeTab, setActiveTab] = useState<TabType>('fuentes');
@@ -418,6 +420,27 @@ const ScrapingConfig = () => {
             </div>
           </div>
         );
+        case 'errores':
+        return (
+          <div className="error-table-scroll">
+              <table className="error-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Descripción</th>
+                </tr>
+                </thead>
+                <tbody>
+                  {mockRows.map((row, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{row}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+        )
       default:
         return null;
     }
@@ -425,10 +448,16 @@ const ScrapingConfig = () => {
 
   return (
     <div className="data-feature">
-      <h1>Configurar Scraping</h1>
+      <h1>Gestión de Scraping</h1>
       
       {/* Barra de pestañas */}
       <div className="tab-bar">
+        <button 
+          className={`tab-button ${activeTab === 'programacion' ? 'active' : ''}`}
+          onClick={() => setActiveTab('programacion')}
+        >
+          Programacion
+        </button>
         <button 
           className={`tab-button ${activeTab === 'fuentes' ? 'active' : ''}`}
           onClick={() => setActiveTab('fuentes')}
@@ -442,10 +471,10 @@ const ScrapingConfig = () => {
           Script Python
         </button>
         <button 
-          className={`tab-button ${activeTab === 'programacion' ? 'active' : ''}`}
-          onClick={() => setActiveTab('programacion')}
+          className={`tab-button ${activeTab === 'errores' ? 'active' : ''}`}
+          onClick={() => setActiveTab('errores')}
         >
-          Programación
+          Errores
         </button>
       </div>
 
