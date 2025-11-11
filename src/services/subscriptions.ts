@@ -1,5 +1,5 @@
 // Funciones específicas para manejar suscripciones
-import { apiGet } from './api';
+import { apiGet, apiDelete, apiPost } from './api';
 import { ENDPOINTS } from '../config/api';
 
 // Tipos de datos basados en la respuesta real de la API
@@ -82,5 +82,78 @@ export async function testApiConnection(): Promise<boolean> {
   } catch (error) {
     console.error('API no disponible:', error);
     return false;
+  }
+}
+
+// Función para cancelar/suspender una suscripción
+export async function cancelSubscription(subscriptionId: string): Promise<boolean> {
+  try {
+    console.log('🔴 Cancelando suscripción:', subscriptionId);
+    
+    // Construir el endpoint con el ID
+    const endpoint = ENDPOINTS.SUBSCRIPTIONS_DELETE.replace(':id', subscriptionId);
+    console.log('🔴 Endpoint DELETE:', endpoint);
+    
+    // Hacer petición DELETE
+    const data = await apiDelete(endpoint);
+    
+    console.log('🔴 Respuesta completa de DELETE:', JSON.stringify(data, null, 2));
+    console.log('🔴 ¿Success?:', data.success);
+    console.log('🔴 Data recibida:', data.data);
+    
+    return data.success === true;
+    
+  } catch (error) {
+    console.error('❌ Error al cancelar suscripción:', error);
+    return false;
+  }
+}
+
+// Función para renovar/reactivar una suscripción
+export async function renewSubscription(subscriptionId: string, duration: number = 30): Promise<boolean> {
+  try {
+    console.log('🟢 Renovando suscripción:', subscriptionId, 'por', duration, 'días');
+    
+    // Construir el endpoint con el ID
+    const endpoint = ENDPOINTS.SUBSCRIPTIONS_RENEW.replace(':id', subscriptionId);
+    console.log('🟢 Endpoint RENEW:', endpoint);
+    
+    // Hacer petición POST con la duración
+    const data = await apiPost(endpoint, { duration });
+    
+    console.log('🟢 Respuesta completa de RENEW:', JSON.stringify(data, null, 2));
+    console.log('🟢 ¿Success?:', data.success);
+    console.log('🟢 Data recibida:', data.data);
+    
+    return data.success === true;
+    
+  } catch (error) {
+    console.error('❌ Error al renovar suscripción:', error);
+    return false;
+  }
+}
+
+// Función para obtener una suscripción específica por ID (para verificar cambios)
+export async function getSubscriptionById(subscriptionId: string): Promise<Subscription | null> {
+  try {
+    console.log('🔍 Obteniendo suscripción por ID:', subscriptionId);
+    
+    // Construir el endpoint con el ID
+    const endpoint = ENDPOINTS.SUBSCRIPTIONS_GET.replace(':id', subscriptionId);
+    
+    // Hacer petición GET
+    const data = await apiGet(endpoint);
+    
+    console.log('🔍 Suscripción obtenida:', data);
+    
+    if (data.success && data.data) {
+      return data.data;
+    }
+    
+    return null;
+    
+  } catch (error) {
+    console.error('❌ Error al obtener suscripción:', error);
+    return null;
   }
 }

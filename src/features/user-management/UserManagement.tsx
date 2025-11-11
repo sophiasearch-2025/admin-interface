@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './UserManagement.css';
-import { getAllSubscriptions, testApiConnection } from '../../services/subscriptions';
+import { getAllSubscriptions, testApiConnection, cancelSubscription, renewSubscription, getSubscriptionById } from '../../services/subscriptions';
 import type { Subscription } from '../../services/subscriptions';
 
 interface Usuario {
@@ -92,20 +92,99 @@ const UserManagement = () => {
     // Aquí abrir modal o navegar a página de logs
   };
 
-  const cambiarEstadoUsuario = (id: string) => {
-    const usuariosActualizados = usuarios.map(usuario => {
-      if (usuario.id === id) {
-        const nuevoEstado: 'activo' | 'suspendido' = usuario.estado === 'activo' ? 'suspendido' : 'activo';
-        const accion = nuevoEstado === 'suspendido' ? 'suspendida' : 'reactivada';
-        
-        alert(`Cuenta ${accion} exitosamente para ${usuario.nombre}`);
-        
-        return { ...usuario, estado: nuevoEstado };
-      }
-      return usuario;
-    });
+  const cambiarEstadoUsuario = async (id: string) => {
+    const usuario = usuarios.find(u => u.id === id);
+    if (!usuario) return;
+
+    const nuevoEstado: 'activo' | 'suspendido' = usuario.estado === 'activo' ? 'suspendido' : 'activo';
+    const accion = nuevoEstado === 'suspendido' ? 'suspender' : 'reactivar';
     
-    setUsuarios(usuariosActualizados);
+    // Confirmar la acción con el usuario
+    if (!confirm(`¿Estás seguro de que deseas ${accion} la cuenta de ${usuario.nombre}?`)) {
+      return;
+    }
+
+    try {
+      let resultado = false;
+      let estadoCambioEnAPI = false;
+
+      if (nuevoEstado === 'suspendido') {
+        // Suspender = Cancelar suscripción en la API
+        console.log('🔴 Intentando suspender suscripción:', id);
+        resultado = await cancelSubscription(id);
+        
+        // Verificar si realmente cambió en la base de datos
+        if (resultado) {
+          console.log('⏳ Esperando 1 segundo para verificar el cambio...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const suscripcionActualizada = await getSubscriptionById(id);
+          console.log('🔍 Estado después de cancelar:', suscripcionActualizada?.status);
+          
+          if (suscripcionActualizada?.status === 'cancelled' || suscripcionActualizada?.status === 'canceled') {
+            console.log('✅ El status SÍ cambió a cancelled/canceled');
+            estadoCambioEnAPI = true;
+          } else {
+            console.log('⚠️ ADVERTENCIA: El status NO cambió. Sigue como:', suscripcionActualizada?.status);
+            console.log('⚠️ Esto indica que la API no está actualizando el campo status en Firestore');
+            estadoCambioEnAPI = false;
+          }
+        }
+      } else {
+        // Reactivar = Renovar suscripción en la API (30 días por defecto)
+        console.log('🟢 Intentando reactivar suscripción:', id);
+        resultado = await renewSubscription(id, 30);
+        
+        // Verificar si realmente cambió
+        if (resultado) {
+          console.log('⏳ Esperando 1 segundo para verificar el cambio...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const suscripcionActualizada = await getSubscriptionById(id);
+          console.log('🔍 Estado después de renovar:', suscripcionActualizada?.status);
+          
+          if (suscripcionActualizada?.status === 'active') {
+            console.log('✅ El status SÍ cambió a active');
+            estadoCambioEnAPI = true;
+          } else {
+            console.log('⚠️ ADVERTENCIA: El status NO cambió después de renovar');
+            estadoCambioEnAPI = false;
+          }
+        }
+      }
+
+      // Recargar las suscripciones desde la API
+      console.log('🔄 Recargando datos desde la API...');
+      const suscripcionesActualizadas = await getAllSubscriptions();
+      const usuariosActualizados = suscripcionesActualizadas.map(convertirSuscripcionAUsuario);
+      setUsuarios(usuariosActualizados);
+
+      if (resultado && estadoCambioEnAPI) {
+        // Todo funcionó correctamente
+        const mensajeExito = nuevoEstado === 'suspendido' ? 'suspendida' : 'reactivada';
+        alert(`✅ Cuenta ${mensajeExito} exitosamente para ${usuario.nombre}`);
+      } else if (resultado && !estadoCambioEnAPI) {
+        // La API respondió OK pero no actualizó el campo status
+        alert(
+          `PROBLEMA CON LA API DE SUSCRIPCIONES\n\n` +
+          `La solicitud fue enviada exitosamente, pero el campo "status" NO se actualizó en la base de datos.\n\n` +
+          `CAUSA: La API no tiene implementado un endpoint PATCH para actualizar el estado de las suscripciones.\n\n`
+        );
+      } else {
+        alert(`❌ Error al ${accion} la cuenta. La API no respondió correctamente.`);
+      }
+    } catch (error) {
+      console.error('❌ Error al cambiar estado del usuario:', error);
+      alert(
+        `❌ ERROR DE CONEXIÓN\n\n` +
+        `No se pudo ${accion} la cuenta de ${usuario.nombre}.\n\n` +
+        `Posibles causas:\n` +
+        `• La API no está disponible\n` +
+        `• Problemas de red\n` +
+        `• El endpoint no existe\n\n` +
+        `Verifica la consola del navegador (F12) para más detalles.`
+      );
+    }
   };
 
   const getIniciales = (nombre: string) => {
