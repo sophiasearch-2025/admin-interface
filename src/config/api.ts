@@ -6,7 +6,11 @@ export const API_CONFIG = {
   USER_MANAGEMENT_PORT: 3000,
   
   // URLs completas
-  USER_MANAGEMENT: `http://${SERVER_IP}:3000`
+  USER_MANAGEMENT: `http://${SERVER_IP}:3000`,
+  
+  // Configuración de timeouts (en milisegundos)
+  TIMEOUT: 30000, // 30 segundos por defecto
+  TIMEOUT_LONG: 60000, // 60 segundos para operaciones largas
 };
 
 // Endpoints de las APIs

@@ -10,11 +10,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 9px;
     background-color: #1d1d1b;
     border-bottom: 3px solid #343434;
     border-radius: 5px 5px 0 0;
-    height: 50px;
     flex-shrink: 0;
 }
 
@@ -44,7 +43,7 @@
     text-align: center;
     color: #f2f2f2;
     font-weight: 800;
-    font-size: 1.8rem;
+    font-size: 2rem;
 }
 
 .toolbar-button {
@@ -269,33 +268,6 @@
     outline: none;
     border-color: #2a3176;
     box-shadow: 0 0 0 2px rgba(42, 49, 118, 0.2);
-}
-
-.error-indicators {
-    margin-top: 0.75rem;
-}
-
-.error-count {
-    color: #fed7d7;
-    font-size: 0.8rem;
-    font-weight: 500;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.error-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-}
-
-.error-tag {
-    background: #742a2a;
-    color: #f2f2f2;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    border: 1px solid #e53e3e;
 }
 
 /* Editor de contenido */

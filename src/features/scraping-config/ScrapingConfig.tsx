@@ -276,7 +276,7 @@ const ScrapingConfig = () => {
             <div className="schedule-section">
               {/* Selección de frecuencia */}
               <div className="schedule-item">
-                <label>Frecuencia:</label>
+                <label>Frecuencia</label>
                 <select 
                   className="select-field"
                   value={frecuencia}
@@ -286,7 +286,6 @@ const ScrapingConfig = () => {
                     setScrapingIniciado(false);
                   }}
                 >
-                  <option value="">Seleccionar frecuencia</option>
                   <option value="manual">Manual</option>
                   <option value="diario">Diario</option>
                   <option value="semanal">Semanal</option>
@@ -456,7 +455,7 @@ const ScrapingConfig = () => {
           className={`tab-button ${activeTab === 'programacion' ? 'active' : ''}`}
           onClick={() => setActiveTab('programacion')}
         >
-          Programacion
+          Programación
         </button>
         <button 
           className={`tab-button ${activeTab === 'fuentes' ? 'active' : ''}`}
