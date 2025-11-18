@@ -2,11 +2,15 @@
 import { API_CONFIG } from '../config/api';
 
 // Función principal para hacer peticiones
-export async function makeApiRequest(endpoint: string, options: RequestInit = {}) {
+export async function makeApiRequest(endpoint: string, options: RequestInit = {}, timeout: number = API_CONFIG.TIMEOUT) {
   // Construir la URL completa
   const url = `${API_CONFIG.USER_MANAGEMENT}${endpoint}`;
   
   console.log('Haciendo petición a:', url); // Para debug
+  
+  // Crear AbortController para manejar timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
   
   try {
     const response = await fetch(url, {
@@ -14,9 +18,13 @@ export async function makeApiRequest(endpoint: string, options: RequestInit = {}
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      signal: controller.signal, // Agregar signal para timeout
       ...options,
     });
 
+    // Limpiar el timeout si la petición fue exitosa
+    clearTimeout(timeoutId);
+    
     console.log('Respuesta recibida:', response.status, response.statusText);
 
     // Verificar si la petición fue exitosa
@@ -30,6 +38,14 @@ export async function makeApiRequest(endpoint: string, options: RequestInit = {}
     
     return data;
   } catch (error) {
+    // Limpiar el timeout en caso de error
+    clearTimeout(timeoutId);
+    
+    // Verificar si es un error de timeout
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Timeout: La petición tardó más de ${timeout / 1000} segundos`);
+    }
+    
     console.error('Error en la petición:', error);
     throw error;
   }
