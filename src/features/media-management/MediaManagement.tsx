@@ -3,8 +3,7 @@ import "./MediaManegment.css";
 
 const MediaManagement = () => {
   const [showModal, setShowModal] = useState(false);
-
-  const mediaSamples = [
+  const [mediaSamples, setMediaSamples] = useState([
     { nombre: "El País", url: "https://elpais.com", pais: "España", categoria: "General", descripcion: "Diario español de información general" },
     { nombre: "The New York Times", url: "https://nytimes.com", pais: "Estados Unidos", categoria: "General", descripcion: "Periódico estadounidense de referencia" },
     { nombre: "BBC News", url: "https://bbc.com/news", pais: "Reino Unido", categoria: "Internacional", descripcion: "Servicio de noticias de la BBC" },
@@ -55,7 +54,37 @@ const MediaManagement = () => {
     { nombre: "MSNBC", url: "https://msnbc.com", pais: "Estados Unidos", categoria: "Televisión", descripcion: "Canal de noticias progresista" },
     { nombre: "Politico", url: "https://politico.com", pais: "Estados Unidos", categoria: "Política", descripcion: "Medio especializado en política" },
     { nombre: "The Economist", url: "https://economist.com", pais: "Reino Unido", categoria: "Revista", descripcion: "Revista semanal de análisis" }
-  ];
+  ]);
+
+  const [formData, setFormData] = useState({
+    nombre: "",
+    url: "",
+    pais: "",
+    categoria: "",
+    descripcion: ""
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.nombre && formData.url && formData.pais && formData.categoria && formData.descripcion) {
+      setMediaSamples([...mediaSamples, formData]);
+      setFormData({
+        nombre: "",
+        url: "",
+        pais: "",
+        categoria: "",
+        descripcion: ""
+      });
+      setShowModal(false);
+    }
+  };
 
   return (
     <div className="media-container">
@@ -95,16 +124,51 @@ const MediaManagement = () => {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <form className="media-form">
-              <input type="text" placeholder="Nombre medio" />
-              <input type="text" placeholder="URL" />
-              <input type="text" placeholder="Paí­s" />
-              <input type="text" placeholder="Categorí­a" />
-              <input type="text" placeholder="Descripción" />
-              <button className="media-btn" onClick={() => setShowModal(false)}>
+            <form className="media-form" onSubmit={handleSubmit}>
+              <input 
+                type="text" 
+                name="nombre"
+                placeholder="Nombre medio" 
+                value={formData.nombre}
+                onChange={handleInputChange}
+                required
+              />
+              <input 
+                type="text" 
+                name="url"
+                placeholder="URL" 
+                value={formData.url}
+                onChange={handleInputChange}
+                required
+              />
+              <input 
+                type="text" 
+                name="pais"
+                placeholder="País" 
+                value={formData.pais}
+                onChange={handleInputChange}
+                required
+              />
+              <input 
+                type="text" 
+                name="categoria"
+                placeholder="Categoría" 
+                value={formData.categoria}
+                onChange={handleInputChange}
+                required
+              />
+              <input 
+                type="text" 
+                name="descripcion"
+                placeholder="Descripción" 
+                value={formData.descripcion}
+                onChange={handleInputChange}
+                required
+              />
+              <button type="submit" className="media-btn">
                 Guardar
               </button>
-              <button className="close-btn" onClick={() => setShowModal(false)}>
+              <button type="button" className="close-btn" onClick={() => setShowModal(false)}>
                 Cerrar
               </button>
             </form>
