@@ -6,39 +6,45 @@
 }
 
 .data-feature h1 {
+    width: 100%;
+    font-size: 2rem;
+    font-weight: 800;
+    text-align: center; 
     color: #f2f2f2;
-    margin: 20px;
-    margin-bottom: 10px;
+    position: relative;
+    padding: 14px; 
 }
 
 /* Estilos para la barra de pestañas */
+
 .tab-bar {
     display: flex;
-    border-bottom: 1px solid #444;
-    margin: 0 20px;
+    border-top: 3px solid #818181;
+    border-bottom: 3px solid #818181;
+    margin: 0;
+    width: auto;
 }
 
-.tab-button {
-    background: none;
-    border: none;
-    padding: 15px 25px;
-    color: #aaa;
+.tab-bar .tab-button {
+    flex: 1 1 0;
+    width: 100%;
+    text-align: center;
+    border: 3px solid #343434;
+    padding: 6px 12px;
+    color: #f2f2f2;
+    background: #1d1d1b;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
-    font-size: 14px;
-    font-weight: 500;
+    box-sizing: border-box;
 }
 
 .tab-button:hover {
-    color: #f2f2f2;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #2a3176;
+    border: 3px solid #535bf2;
 }
 
 .tab-button.active {
-    color: #f2f2f2;
-    border-bottom-color: rgba(42, 49, 118, 0.8);;
     background-color: #2a3176;
+    border: 3px solid #535bf2;
 }
 
 /* Contenedor del contenido de las pestañas */
@@ -54,6 +60,7 @@
 
 .tab-content h3 {
     color: #f2f2f2;
+    padding: 10px 0px;
     margin-bottom: 20px;
     font-size: 18px;
 }
@@ -86,9 +93,9 @@
 .input-field,
 .select-field,
 .textarea-field {
-    padding: 12px;
+    padding: 8px;
     background-color: #2d2d2d;
-    border: 1px solid #555;
+    border: 3px solid #343434;
     border-radius: 4px;
     color: #f2f2f2;
     font-size: 14px;
@@ -98,12 +105,13 @@
 .select-field:focus,
 .textarea-field:focus {
     outline: none;
-    border-color: #f2f2f2;
+    border: 3px solid #818181;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
 .textarea-field {
     resize: vertical;
+    border: 3px solid #818181;
     min-height: 80px;
 }
 
@@ -123,6 +131,7 @@
 
 .btn-primary:hover {
     background-color: #2a3176;
+    border: 3px solid #535bf2;
 }
 
 /* Estilos para checkboxes */
