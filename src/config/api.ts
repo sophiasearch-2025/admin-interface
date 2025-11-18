@@ -9,8 +9,8 @@ export const API_CONFIG = {
   USER_MANAGEMENT: `http://${SERVER_IP}:3000`,
   
   // Configuración de timeouts (en milisegundos)
-  TIMEOUT: 10000, // 10 segundos por defecto
-  TIMEOUT_LONG: 10000, // 10 segundos para operaciones largas
+  TIMEOUT: 30000, // 30 segundos por defecto
+  TIMEOUT_LONG: 60000, // 60 segundos para operaciones largas
 };
 
 // Endpoints de las APIs
