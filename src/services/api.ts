@@ -50,3 +50,10 @@ export async function apiPost(endpoint: string, data?: any) {
 export async function apiDelete(endpoint: string) {
   return makeApiRequest(endpoint, { method: 'DELETE' });
 }
+
+export async function apiPatch(endpoint: string, data?: any) {
+  return makeApiRequest(endpoint, {
+    method: 'PATCH',
+    body: data ? JSON.stringify(data) : undefined,
+  });
+}
