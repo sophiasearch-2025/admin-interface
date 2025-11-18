@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './UserManagement.css';
-import { getAllSubscriptions, testApiConnection, cancelSubscription, renewSubscription, getSubscriptionById } from '../../services/subscriptions';
+import { getAllSubscriptions, testApiConnection, updateSubscription } from '../../services/subscriptions';
 import type { Subscription } from '../../services/subscriptions';
 
 interface Usuario {
@@ -109,47 +109,28 @@ const UserManagement = () => {
       let estadoCambioEnAPI = false;
 
       if (nuevoEstado === 'suspendido') {
-        // Suspender = Cancelar suscripción en la API
-        console.log('🔴 Intentando suspender suscripción:', id);
-        resultado = await cancelSubscription(id);
-        
-        // Verificar si realmente cambió en la base de datos
-        if (resultado) {
-          console.log('⏳ Esperando 1 segundo para verificar el cambio...');
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const suscripcionActualizada = await getSubscriptionById(id);
-          console.log('🔍 Estado después de cancelar:', suscripcionActualizada?.status);
-          
-          if (suscripcionActualizada?.status === 'cancelled' || suscripcionActualizada?.status === 'canceled') {
-            console.log('✅ El status SÍ cambió a cancelled/canceled');
-            estadoCambioEnAPI = true;
-          } else {
-            console.log('⚠️ ADVERTENCIA: El status NO cambió. Sigue como:', suscripcionActualizada?.status);
-            console.log('⚠️ Esto indica que la API no está actualizando el campo status en Firestore');
-            estadoCambioEnAPI = false;
-          }
+        // Suspender = PATCH status -> 'cancelled'
+        console.log('🔴 Intentando suspender suscripción (PATCH status=cancelled):', id);
+        const updated = await updateSubscription(id, { status: 'cancelled' });
+
+        if (updated) {
+          console.log('🔍 Resultado PATCH (suspender):', updated.status);
+          estadoCambioEnAPI = (updated.status === 'cancelled' || updated.status === 'canceled');
+          resultado = true;
+        } else {
+          resultado = false;
         }
       } else {
-        // Reactivar = Renovar suscripción en la API (30 días por defecto)
-        console.log('🟢 Intentando reactivar suscripción:', id);
-        resultado = await renewSubscription(id, 30);
-        
-        // Verificar si realmente cambió
-        if (resultado) {
-          console.log('⏳ Esperando 1 segundo para verificar el cambio...');
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const suscripcionActualizada = await getSubscriptionById(id);
-          console.log('🔍 Estado después de renovar:', suscripcionActualizada?.status);
-          
-          if (suscripcionActualizada?.status === 'active') {
-            console.log('✅ El status SÍ cambió a active');
-            estadoCambioEnAPI = true;
-          } else {
-            console.log('⚠️ ADVERTENCIA: El status NO cambió después de renovar');
-            estadoCambioEnAPI = false;
-          }
+        // Reactivar = PATCH status -> 'active'
+        console.log('🟢 Intentando reactivar suscripción (PATCH status=active):', id);
+        const updated = await updateSubscription(id, { status: 'active' });
+
+        if (updated) {
+          console.log('🔍 Resultado PATCH (reactivar):', updated.status);
+          estadoCambioEnAPI = (updated.status === 'active');
+          resultado = true;
+        } else {
+          resultado = false;
         }
       }
 
@@ -164,11 +145,11 @@ const UserManagement = () => {
         const mensajeExito = nuevoEstado === 'suspendido' ? 'suspendida' : 'reactivada';
         alert(`✅ Cuenta ${mensajeExito} exitosamente para ${usuario.nombre}`);
       } else if (resultado && !estadoCambioEnAPI) {
-        // La API respondió OK pero no actualizó el campo status
+        // La API respondió pero no devolvió la suscripción actualizada
         alert(
-          `PROBLEMA CON LA API DE SUSCRIPCIONES\n\n` +
-          `La solicitud fue enviada exitosamente, pero el campo "status" NO se actualizó en la base de datos.\n\n` +
-          `CAUSA: La API no tiene implementado un endpoint PATCH para actualizar el estado de las suscripciones.\n\n`
+          `⚠️ La solicitud fue procesada, pero la API no devolvió la suscripción actualizada.\n\n` +
+          `Por favor, verifica el backend para confirmar que el campo "status" se actualizó correctamente.\n` +
+          `Si el problema persiste, pide al equipo de API que retorne la suscripción actualizada dentro de "data" en la respuesta PATCH.`
         );
       } else {
         alert(`❌ Error al ${accion} la cuenta. La API no respondió correctamente.`);

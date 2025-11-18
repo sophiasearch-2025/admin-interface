@@ -1,5 +1,5 @@
 // Funciones específicas para manejar suscripciones
-import { apiGet, apiDelete, apiPost } from './api';
+import { apiGet, apiPatch } from './api';
 import { ENDPOINTS } from '../config/api';
 
 // Tipos de datos basados en la respuesta real de la API
@@ -86,50 +86,32 @@ export async function testApiConnection(): Promise<boolean> {
 }
 
 // Función para cancelar/suspender una suscripción
-export async function cancelSubscription(subscriptionId: string): Promise<boolean> {
-  try {
-    console.log('🔴 Cancelando suscripción:', subscriptionId);
-    
-    // Construir el endpoint con el ID
-    const endpoint = ENDPOINTS.SUBSCRIPTIONS_DELETE.replace(':id', subscriptionId);
-    console.log('🔴 Endpoint DELETE:', endpoint);
-    
-    // Hacer petición DELETE
-    const data = await apiDelete(endpoint);
-    
-    console.log('🔴 Respuesta completa de DELETE:', JSON.stringify(data, null, 2));
-    console.log('🔴 ¿Success?:', data.success);
-    console.log('🔴 Data recibida:', data.data);
-    
-    return data.success === true;
-    
-  } catch (error) {
-    console.error('❌ Error al cancelar suscripción:', error);
-    return false;
-  }
-}
+// NOTE: Old cancelSubscription and renewSubscription helpers removed.
+// Use `updateSubscription(id, { status: 'cancelled' })` or
+// `updateSubscription(id, { status: 'active' })` instead.
 
-// Función para renovar/reactivar una suscripción
-export async function renewSubscription(subscriptionId: string, duration: number = 30): Promise<boolean> {
+// Función para actualizar (PATCH) una suscripción — útil para cambiar el `status` u otros campos
+export async function updateSubscription(subscriptionId: string, updates: any): Promise<Subscription | null> {
   try {
-    console.log('🟢 Renovando suscripción:', subscriptionId, 'por', duration, 'días');
-    
-    // Construir el endpoint con el ID
-    const endpoint = ENDPOINTS.SUBSCRIPTIONS_RENEW.replace(':id', subscriptionId);
-    console.log('🟢 Endpoint RENEW:', endpoint);
-    
-    // Hacer petición POST con la duración
-    const data = await apiPost(endpoint, { duration });
-    
-    console.log('🟢 Respuesta completa de RENEW:', JSON.stringify(data, null, 2));
-    console.log('🟢 ¿Success?:', data.success);
-    console.log('🟢 Data recibida:', data.data);
-    
-    return data.success === true;
-    
+    console.log('🔧 Actualizando suscripción (PATCH):', subscriptionId, updates);
+    const endpoint = ENDPOINTS.SUBSCRIPTIONS_GET.replace(':id', subscriptionId);
+    console.log('🔧 Endpoint PATCH:', endpoint);
+    const data = await apiPatch(endpoint, updates);
+    console.log('🔧 Respuesta PATCH:', JSON.stringify(data, null, 2));
+
+    if (data && data.success && data.data) {
+      return data.data as Subscription;
+    }
+
+    // Algunas implementaciones devuelven success + data.status, manejamos casos generales
+    if (data && data.success && data.data === undefined) {
+      return null;
+    }
+
+    return null;
   } catch (error) {
-    console.error('❌ Error al renovar suscripción:', error);
-    return false;
+    console.error('❌ Error al actualizar suscripción:', error);
+    return null;
   }
 }
 
