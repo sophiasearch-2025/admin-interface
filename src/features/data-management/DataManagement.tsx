@@ -128,20 +128,6 @@ const DataManagement = () => {
                   ))}
                 </select>
                 
-                {selectedNews && (
-                  <div className="error-indicators">
-                    <span className="error-count">
-                      {selectedNews.errors.length} error(es) detectado(s)
-                    </span>
-                    <div className="error-list">
-                      {selectedNews.errors.map((error, index) => (
-                        <span key={index} className="error-tag">
-                          {error}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Editor de contenido */}
