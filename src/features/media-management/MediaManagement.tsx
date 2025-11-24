@@ -56,6 +56,10 @@ const MediaManagement = () => {
     { nombre: "The Economist", url: "https://economist.com", pais: "Reino Unido", categoria: "Revista", descripcion: "Revista semanal de análisis" }
   ]);
 
+  const [archivoPython, setArchivoPython] = useState<File | null>(null);
+  const [codigoPython, setCodigoPython] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+
   const [formData, setFormData] = useState({
     nombre: "",
     url: "",
@@ -63,6 +67,59 @@ const MediaManagement = () => {
     categoria: "",
     descripcion: ""
   });
+  const [errorMsg, setErrorMsg] = useState("");
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.name.endsWith('.py')) {
+        setArchivoPython(file);
+        
+        // Leer el contenido del archivo
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setCodigoPython(event.target?.result as string || '');
+        };
+        reader.readAsText(file);
+      } else {
+        alert('Por favor, selecciona solo archivos Python (.py)');
+      }
+    }
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.name.endsWith('.py')) {
+      setArchivoPython(file);
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setCodigoPython(event.target?.result as string || '');
+      };
+      reader.readAsText(file);
+    } else {
+      alert('Por favor, selecciona un archivo Python (.py)');
+    }
+  };
+
+  const limpiarArchivo = () => {
+    setArchivoPython(null);
+    setCodigoPython('');
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -73,7 +130,14 @@ const MediaManagement = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.nombre && formData.url && formData.pais && formData.categoria && formData.descripcion) {
+    if (
+      formData.nombre &&
+      formData.url &&
+      formData.pais &&
+      formData.categoria &&
+      formData.descripcion &&
+      archivoPython
+    ) {
       setMediaSamples([...mediaSamples, formData]);
       setFormData({
         nombre: "",
@@ -82,8 +146,10 @@ const MediaManagement = () => {
         categoria: "",
         descripcion: ""
       });
+      setArchivoPython(null);
+      setCodigoPython("");
       setShowModal(false);
-    }
+    } 
   };
 
   return (
@@ -165,11 +231,77 @@ const MediaManagement = () => {
                 onChange={handleInputChange}
                 required
               />
-              <button type="submit" className="media-btn">
+              <div 
+              className={`drop-zone ${isDragging ? 'dragging' : ''} ${archivoPython ? 'has-file' : ''}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              >
+              {!archivoPython ? (
+                <div className="drop-content">
+                  <div className="drop-icon">🐍</div>
+                  <h4>Arrastra aquí el script de recolección para este medio</h4>
+                  <input 
+                    type="file" 
+                    accept=".py"
+                    onChange={handleFileInput}
+                    className="file-input"
+                    id="python-file"
+                  />
+                  <label htmlFor="python-file" className="file-label">
+                    o haz clic aquí para seleccionar archivo
+                  </label>
+                  <div className="file-requirements">
+                    <small>Solo archivos Python (.py) son permitidos</small>
+                  </div>
+                </div>
+              ) : (
+                <div className="file-info">
+                  <div className="file-header">
+                    <div className="file-details">
+                      <span className="file-icon">📄</span>
+                      <div>
+                        <h5 className="file-name">
+                          <span>{archivoPython.name}</span>
+                          <small className="file-size">{(archivoPython.size / 1024).toFixed(2)} KB</small>
+                        </h5>
+                      </div>
+                    </div>
+                    <button 
+                      className="btn-delete"
+                      onClick={limpiarArchivo}
+                      title="Eliminar archivo"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                  
+                  {/* Preview del código */}
+                  <div className="code-preview">
+                    <pre className="code-content">
+                      <code>{codigoPython}</code>
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </div>
+              <button
+                type="submit"
+                className="media-btn"
+              >
                 Guardar
               </button>
-              <button type="button" className="close-btn" onClick={() => setShowModal(false)}>
-                Cerrar
+              <button
+                type="button"
+                className="close-btn"
+                onClick={() => {
+                  setShowModal(false);
+                  setArchivoPython(null);
+                  setCodigoPython('');
+                  setFormData({ nombre: '', url: '', pais: '', categoria: '', descripcion: '' });
+                }}
+              >
+                Cancelar
               </button>
             </form>
           </div>
