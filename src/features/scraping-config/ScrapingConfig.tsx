@@ -1,7 +1,7 @@
 import './ScrapingConfig.css';
 import { useState } from 'react';
 
-type TabType = 'fuentes' | 'reglas' | 'programacion' | 'errores';
+type TabType = 'fuentes' | 'programacion' | 'errores';
 
 interface Fuente {
   id: number;
@@ -26,10 +26,6 @@ const ScrapingConfig = () => {
   const [diaDelMes, setDiaDelMes] = useState('');
   const [scrapingIniciado, setScrapingIniciado] = useState(false);
   
-  // Estados para archivo Python
-  const [archivoPython, setArchivoPython] = useState<File | null>(null);
-  const [codigoPython, setCodigoPython] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
 
   const agregarFuente = () => {
     if (nombreFuente.trim() && urlFuente.trim()) {
@@ -68,58 +64,6 @@ const ScrapingConfig = () => {
       mensaje += `, Día del mes: ${diaDelMes}, Hora: ${horaEjecucion}`;
     }
     alert(mensaje);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.name.endsWith('.py')) {
-        setArchivoPython(file);
-        
-        // Leer el contenido del archivo
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setCodigoPython(event.target?.result as string || '');
-        };
-        reader.readAsText(file);
-      } else {
-        alert('Por favor, selecciona solo archivos Python (.py)');
-      }
-    }
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.name.endsWith('.py')) {
-      setArchivoPython(file);
-      
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setCodigoPython(event.target?.result as string || '');
-      };
-      reader.readAsText(file);
-    } else {
-      alert('Por favor, selecciona un archivo Python (.py)');
-    }
-  };
-
-  const limpiarArchivo = () => {
-    setArchivoPython(null);
-    setCodigoPython('');
   };
 
   const renderTabContent = () => {
@@ -198,72 +142,6 @@ const ScrapingConfig = () => {
                       ))}
                     </div>
                   )}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      case 'reglas':
-        return (
-          <div className="tab-content">
-            <h3>Código Python de Extracción</h3>
-            
-            {/* Área de drag & drop */}
-            <div 
-              className={`drop-zone ${isDragging ? 'dragging' : ''} ${archivoPython ? 'has-file' : ''}`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              {!archivoPython ? (
-                <div className="drop-content">
-                  <div className="drop-icon">🐍</div>
-                  <h4>Arrastra tu archivo Python aquí</h4>
-                  <p>o haz clic para seleccionar</p>
-                  <input 
-                    type="file" 
-                    accept=".py"
-                    onChange={handleFileInput}
-                    className="file-input"
-                    id="python-file"
-                  />
-                  <label htmlFor="python-file" className="file-label">
-                    Seleccionar archivo .py
-                  </label>
-                  <div className="file-requirements">
-                    <small>Solo archivos Python (.py) son permitidos</small>
-                  </div>
-                </div>
-              ) : (
-                <div className="file-info">
-                  <div className="file-header">
-                    <div className="file-details">
-                      <span className="file-icon">📄</span>
-                      <div>
-                        <h5 className="file-name">{archivoPython.name}</h5>
-                        <small className="file-size">{(archivoPython.size / 1024).toFixed(2)} KB</small>
-                      </div>
-                    </div>
-                    <button 
-                      className="btn-delete"
-                      onClick={limpiarArchivo}
-                      title="Eliminar archivo"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                  
-                  {/* Preview del código */}
-                  <div className="code-preview">
-                    <h6>Vista previa del código:</h6>
-                    <pre className="code-content">
-                      <code>{codigoPython}</code>
-                    </pre>
-                  </div>
-                  
-                  <button className="btn-primary">
-                    Cargar Código Python
-                  </button>
                 </div>
               )}
             </div>
@@ -462,12 +340,6 @@ const ScrapingConfig = () => {
           onClick={() => setActiveTab('fuentes')}
         >
           Fuentes
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'reglas' ? 'active' : ''}`}
-          onClick={() => setActiveTab('reglas')}
-        >
-          Script Python
         </button>
         <button 
           className={`tab-button ${activeTab === 'errores' ? 'active' : ''}`}
