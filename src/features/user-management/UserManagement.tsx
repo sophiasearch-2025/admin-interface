@@ -1,76 +1,83 @@
 import { useState, useEffect } from 'react';
 import './UserManagement.css';
-import { getAllSubscriptions, testApiConnection, updateSubscription } from '../../services/subscriptions';
-import type { Subscription } from '../../services/subscriptions';
+import { getAllUsers, testUsersApiConnection, updateUserStatus, getComprobanteUrl } from '../../services/users';
+import type { User } from '../../services/users';
+import { API_CONFIG } from '../../config/api';
 
 interface Usuario {
-  id: string; // Cambiado a string para coincidir con Subscription
+  id: string;
   nombre: string;
   email: string;
   estado: 'activo' | 'suspendido';
   avatar?: string;
-  plan?: string; // Agregamos plan de suscripción
+  company?: string;
+  comprobanteUrl?: string | null;
+  solicitudAprobada?: boolean;
 }
 
 const UserManagement = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [usuariosFiltrados, setUsuariosFiltrados] = useState<Usuario[]>([]);
   const [busqueda, setBusqueda] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState<'todos' | 'activo' | 'suspendido'>('todos');
+  const [filtroEstado, setFiltroEstado] = useState<'todos' | 'activo' | 'suspendido' | 'pendientes'>('todos');
   const [cargando, setCargando] = useState(true);
+  const [mostrarModalBoleta, setMostrarModalBoleta] = useState(false);
+  const [boletaSeleccionada, setBoletaSeleccionada] = useState<string | null>(null);
 
-  // Función para convertir suscripciones de la API a formato Usuario
-  const convertirSuscripcionAUsuario = (subscription: Subscription): Usuario => {
+  // Función para convertir usuarios de la API a formato Usuario
+  const convertirUserAUsuario = (user: User): Usuario => {
     return {
-      id: subscription.id,
-      nombre: subscription.userId || `Usuario-${subscription.id.slice(0, 8)}`, // Usar userId o parte del ID
-      email: subscription.userId || 'sin-email@ejemplo.com', // Por ahora usar userId como email
-      estado: subscription.status === 'active' ? 'activo' : 'suspendido',
-      plan: subscription.plan || subscription.description || 'No definido'
+      id: user.id,
+      nombre: user.name || user.username || `Usuario-${user.id.slice(0, 8)}`,
+      email: user.email,
+      estado: user.estado === 'active' ? 'activo' : 'suspendido',
+      company: user.company || undefined,
+      comprobanteUrl: user.comprobanteUrl || null,
+      solicitudAprobada: user.solicitudAprobada ?? true // Por defecto true para usuarios antiguos
     };
   };
 
   // Carga real de datos desde la API
   useEffect(() => {
-    const cargarSuscripciones = async () => {
-      setCargando(true);
+    cargarUsuarios();
+  }, []);
+
+  const cargarUsuarios = async () => {
+    setCargando(true);
+    
+    try {
+      console.log('📋 Intentando conectar con la API de usuarios...');
       
-      try {
-        console.log('Intentando conectar con la API...');
+      // Primero probar si la API está disponible
+      const apiDisponible = await testUsersApiConnection();
+      
+      if (apiDisponible) {
+        console.log('✅ API disponible, obteniendo usuarios...');
         
-        // Primero probar si la API está disponible
-        const apiDisponible = await testApiConnection();
+        // Obtener usuarios reales
+        const usersDesdeAPI = await getAllUsers();
         
-        if (apiDisponible) {
-          console.log('API disponible, obteniendo suscripciones...');
-          
-          // Obtener suscripciones reales
-          const suscripciones = await getAllSubscriptions();
-          
-          // Convertir suscripciones a formato Usuario
-          const usuariosDesdeAPI = suscripciones.map(convertirSuscripcionAUsuario);
-          
-          setUsuarios(usuariosDesdeAPI);
-          setUsuariosFiltrados(usuariosDesdeAPI);
-          
-          console.log('Datos cargados:', usuariosDesdeAPI.length, 'suscripciones');
-        } else {
-          console.log('API no disponible, mostrando mensaje de error');
-          setUsuarios([]);
-          setUsuariosFiltrados([]);
-        }
+        // Convertir usuarios a formato Usuario
+        const usuariosDesdeAPI = usersDesdeAPI.map(convertirUserAUsuario);
         
-      } catch (error) {
-        console.error('Error al cargar suscripciones:', error);
+        setUsuarios(usuariosDesdeAPI);
+        setUsuariosFiltrados(usuariosDesdeAPI);
+        
+        console.log('✅ Datos cargados:', usuariosDesdeAPI.length, 'usuarios');
+      } else {
+        console.log('❌ API no disponible, mostrando mensaje de error');
         setUsuarios([]);
         setUsuariosFiltrados([]);
-      } finally {
-        setCargando(false);
       }
-    };
-
-    cargarSuscripciones();
-  }, []);
+      
+    } catch (error) {
+      console.error('❌ Error al cargar usuarios:', error);
+      setUsuarios([]);
+      setUsuariosFiltrados([]);
+    } finally {
+      setCargando(false);
+    }
+  };
 
   // Filtrar usuarios basado en la búsqueda y el estado
   useEffect(() => {
@@ -80,7 +87,9 @@ const UserManagement = () => {
     );
 
     // Aplicar filtro de estado
-    if (filtroEstado !== 'todos') {
+    if (filtroEstado === 'pendientes') {
+      filtrados = filtrados.filter(usuario => usuario.solicitudAprobada === false);
+    } else if (filtroEstado !== 'todos') {
       filtrados = filtrados.filter(usuario => usuario.estado === filtroEstado);
     }
 
@@ -105,52 +114,19 @@ const UserManagement = () => {
     }
 
     try {
-      let resultado = false;
-      let estadoCambioEnAPI = false;
+      const estadoAPI = nuevoEstado === 'suspendido' ? 'suspended' : 'active';
+      
+      console.log(`🔄 Intentando ${accion} usuario (PATCH estado=${estadoAPI}):`, id);
+      const updated = await updateUserStatus(id, estadoAPI);
 
-      if (nuevoEstado === 'suspendido') {
-        // Suspender = PATCH status -> 'cancelled'
-        console.log('🔴 Intentando suspender suscripción (PATCH status=cancelled):', id);
-        const updated = await updateSubscription(id, { status: 'cancelled' });
-
-        if (updated) {
-          console.log('🔍 Resultado PATCH (suspender):', updated.status);
-          estadoCambioEnAPI = (updated.status === 'cancelled' || updated.status === 'canceled');
-          resultado = true;
-        } else {
-          resultado = false;
-        }
-      } else {
-        // Reactivar = PATCH status -> 'active'
-        console.log('🟢 Intentando reactivar suscripción (PATCH status=active):', id);
-        const updated = await updateSubscription(id, { status: 'active' });
-
-        if (updated) {
-          console.log('🔍 Resultado PATCH (reactivar):', updated.status);
-          estadoCambioEnAPI = (updated.status === 'active');
-          resultado = true;
-        } else {
-          resultado = false;
-        }
-      }
-
-      // Recargar las suscripciones desde la API
-      console.log('🔄 Recargando datos desde la API...');
-      const suscripcionesActualizadas = await getAllSubscriptions();
-      const usuariosActualizados = suscripcionesActualizadas.map(convertirSuscripcionAUsuario);
-      setUsuarios(usuariosActualizados);
-
-      if (resultado && estadoCambioEnAPI) {
-        // Todo funcionó correctamente
+      if (updated) {
+        console.log('✅ Estado actualizado:', updated.estado);
+        
+        // Recargar los usuarios desde la API
+        await cargarUsuarios();
+        
         const mensajeExito = nuevoEstado === 'suspendido' ? 'suspendida' : 'reactivada';
         alert(`✅ Cuenta ${mensajeExito} exitosamente para ${usuario.nombre}`);
-      } else if (resultado && !estadoCambioEnAPI) {
-        // La API respondió pero no devolvió la suscripción actualizada
-        alert(
-          `⚠️ La solicitud fue procesada, pero la API no devolvió la suscripción actualizada.\n\n` +
-          `Por favor, verifica el backend para confirmar que el campo "status" se actualizó correctamente.\n` +
-          `Si el problema persiste, pide al equipo de API que retorne la suscripción actualizada dentro de "data" en la respuesta PATCH.`
-        );
       } else {
         alert(`❌ Error al ${accion} la cuenta. La API no respondió correctamente.`);
       }
@@ -166,6 +142,90 @@ const UserManagement = () => {
         `Verifica la consola del navegador (F12) para más detalles.`
       );
     }
+  };
+
+  const aprobarUsuario = async (id: string) => {
+    const usuario = usuarios.find(u => u.id === id);
+    if (!usuario) return;
+
+    if (!confirm(`¿Aprobar la solicitud de ${usuario.nombre}?\n\nSe enviará un email de bienvenida automáticamente.`)) {
+      return;
+    }
+
+    try {
+      console.log('✅ Aprobando usuario:', id);
+      
+      const response = await fetch(`${API_CONFIG.USER_MANAGEMENT}/api/users/${id}/approve`, {
+        method: 'PATCH',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Usuario aprobado:', data);
+
+      // Recargar los usuarios desde la API
+      await cargarUsuarios();
+      
+      alert(`✅ Usuario aprobado exitosamente: ${usuario.nombre}\n\nSe ha enviado un email de bienvenida.`);
+    } catch (error: any) {
+      console.error('❌ Error al aprobar usuario:', error);
+      alert(`❌ Error al aprobar usuario:\n\n${error.message || 'Error desconocido'}`);
+    }
+  };
+
+  const rechazarUsuario = async (id: string) => {
+    const usuario = usuarios.find(u => u.id === id);
+    if (!usuario) return;
+
+    const motivo = prompt(`¿Rechazar la solicitud de ${usuario.nombre}?\n\nIngresa el motivo (opcional):`);
+    if (motivo === null) return; // Usuario canceló
+
+    try {
+      console.log('❌ Rechazando usuario:', id);
+      
+      const response = await fetch(`${API_CONFIG.USER_MANAGEMENT}/api/users/${id}/reject`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ motivo: motivo || 'Sin motivo especificado' }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Usuario rechazado:', data);
+
+      // Recargar los usuarios desde la API
+      await cargarUsuarios();
+      
+      alert(`✅ Solicitud rechazada para: ${usuario.nombre}`);
+    } catch (error: any) {
+      console.error('❌ Error al rechazar usuario:', error);
+      alert(`❌ Error al rechazar usuario:\n\n${error.message || 'Error desconocido'}`);
+    }
+  };
+
+  const verBoleta = (usuario: Usuario) => {
+    // Usar el endpoint de la API para obtener la imagen
+    const comprobanteUrl = getComprobanteUrl(usuario.id);
+    console.log('🖼️ Abriendo boleta para usuario:', usuario.id);
+    console.log('🔗 URL del comprobante:', comprobanteUrl);
+    //setBoletaSeleccionada(comprobanteUrl); esto tiene problemas de CORS
+    //setMostrarModalBoleta(true);
+    window.open(comprobanteUrl, '_blank');
+  };
+
+  const cerrarModalBoleta = () => {
+    setMostrarModalBoleta(false);
+    setBoletaSeleccionada(null);
   };
 
   const getIniciales = (nombre: string) => {
@@ -214,6 +274,12 @@ const UserManagement = () => {
           >
             Suspendidos ({usuarios.filter(u => u.estado === 'suspendido').length})
           </button>
+          <button
+            className={`filter-btn ${filtroEstado === 'pendientes' ? 'active' : ''}`}
+            onClick={() => setFiltroEstado('pendientes')}
+          >
+            Pendientes ({usuarios.filter(u => u.solicitudAprobada === false).length})
+          </button>
         </div>
       </div>
 
@@ -251,22 +317,60 @@ const UserManagement = () => {
                   </button>
                   <button 
                     className="btn-boleta"
-                    onClick={() => {/* Funcionalidad pendiente de implementar */}}
+                    onClick={() => verBoleta(usuario)}
                   >
                     🎫 Ver Boleta
                   </button>
-                  <button 
-                    className={usuario.estado === 'activo' ? 'btn-suspend' : 'btn-reactivate'}
-                    onClick={() => cambiarEstadoUsuario(usuario.id)}
-                  >
-                    {usuario.estado === 'activo' ? '⛔ Suspender' : '✅ Reactivar'}
-                  </button>
+                  {usuario.solicitudAprobada === false ? (
+                    <>
+                      <button 
+                        className="btn-aprobar"
+                        onClick={() => aprobarUsuario(usuario.id)}
+                      >
+                        ✅ Aprobar
+                      </button>
+                      <button 
+                        className="btn-rechazar"
+                        onClick={() => rechazarUsuario(usuario.id)}
+                      >
+                        ❌ Rechazar
+                      </button>
+                    </>
+                  ) : (
+                    <button 
+                      className={usuario.estado === 'activo' ? 'btn-suspend' : 'btn-reactivate'}
+                      onClick={() => cambiarEstadoUsuario(usuario.id)}
+                    >
+                      {usuario.estado === 'activo' ? '⛔ Suspender' : '✅ Reactivar'}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Modal para ver boleta */}
+      {mostrarModalBoleta && boletaSeleccionada && (
+        <div className="modal-overlay" onClick={cerrarModalBoleta}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Comprobante de Pago</h2>
+              <button className="modal-close" onClick={cerrarModalBoleta}>✕</button>
+            </div>
+            <div className="modal-body">
+              <img 
+                src={boletaSeleccionada} 
+                alt="Comprobante de pago" 
+                className="boleta-imagen"
+                onLoad={() => console.log('✅ Imagen cargada correctamente')}
+                onError={(e) => console.error('❌ Error al cargar imagen:', boletaSeleccionada, e)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
