@@ -1,5 +1,6 @@
 import './DataManagement.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getNewsMetrics, calculateNewsStats, type NewsMetrics } from '../../services/metrics';
 
 interface NewsItem {
   id: number;
@@ -11,6 +12,25 @@ interface NewsItem {
 const DataManagement = () => {
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(true);
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(true);
+  const [metrics, setMetrics] = useState<NewsMetrics | null>(null);
+  const [loadingMetrics, setLoadingMetrics] = useState(false);
+  
+  // Cargar métricas al montar el componente
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      setLoadingMetrics(true);
+      const response = await getNewsMetrics();
+      if (response.success && response.data) {
+        setMetrics(response.data as NewsMetrics);
+      }
+      setLoadingMetrics(false);
+    };
+    
+    fetchMetrics();
+    // Actualizar métricas cada 30 segundos
+    const interval = setInterval(fetchMetrics, 30000);
+    return () => clearInterval(interval);
+  }, []);
   
   // Noticias con errores hardcodeadas
   const [newsWithErrors] = useState<NewsItem[]>([
@@ -81,7 +101,7 @@ const DataManagement = () => {
         </div>
 
         <div className="toolbar-section toolbar-section-right">
-          <span className="toolbar-label">Estadísticas</span>
+          <span className="toolbar-label">Métricas</span>
           <button 
             className='toolbar-button' 
             onClick={() => {
@@ -92,7 +112,7 @@ const DataManagement = () => {
                 setRightSidebarCollapsed(true);
               }
             }}
-            title={rightSidebarCollapsed ? "Mostrar estadísticas" : "Ocultar estadísticas"}
+            title={rightSidebarCollapsed ? "Mostrar Métricas" : "Ocultar Métricas"}
           >
             {rightSidebarCollapsed ? '<' : '>'}
           </button>
@@ -159,7 +179,7 @@ const DataManagement = () => {
                       {/* Indicador de cambios */}
                       {editedContent !== selectedNews.content && (
                         <div className="changes-indicator">
-                          <span className="changes-text">✏️ Contenido modificado</span>
+                          <span className="changes-text"> Contenido modificado</span>
                         </div>
                       )}
                     </div>
@@ -179,27 +199,142 @@ const DataManagement = () => {
         <aside className={`sidebar-right ${rightSidebarCollapsed ? 'collapsed' : ''}`}>
           {/* Solo mostrar título cuando NO esté colapsada */}
           {!rightSidebarCollapsed && (
-            <div className='sidebar-title-expanded'>Estadísticas</div>
+            <div className='sidebar-title-expanded'>Métricas</div>
           )}
 
           <div className='sidebar-content'>
-            <div className="stats-grid">
-              <div className="stat-item">
-                <img src="/images/charts/grafico1.svg" alt="Gráfico 1" className="stat-image" />
+            {loadingMetrics ? (
+              <div className="metrics-loading">
+                <div className="loading-spinner"></div>
+                <p>Cargando métricas...</p>
               </div>
-              
-              <div className="stat-item">
-                <img src="/images/charts/grafico2.svg" alt="Gráfico 2" className="stat-image" />
+            ) : metrics ? (
+              <div className="metrics-container">
+                {/* Métricas de Crawler */}
+                {metrics.crawler_metrics && (
+                  <div className="metrics-section">
+                    <h3 className="metrics-title"> Crawler</h3>
+                    {Object.entries(metrics.crawler_metrics).map(([sitio, data]) => (
+                      <div key={sitio} className="metric-card">
+                        <h4 className="metric-site">{sitio}</h4>
+                        <div className="metric-row">
+                          <span className="metric-label">URLs encontradas:</span>
+                          <span className="metric-value">{data.total_urls_encontradas.toLocaleString()}</span>
+                        </div>
+                        <div className="metric-row">
+                          <span className="metric-label">Categorías:</span>
+                          <span className="metric-value">{data.total_categorias}</span>
+                        </div>
+                        <div className="metric-row">
+                          <span className="metric-label">Velocidad:</span>
+                          <span className="metric-value">{data.urls_por_minuto.toFixed(2)} urls/min</span>
+                        </div>
+                        <div className="metric-row">
+                          <span className="metric-label">Duración:</span>
+                          <span className="metric-value">{(data.duracion_segundos / 60).toFixed(1)} min</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Métricas de Scraper */}
+                {metrics.scraper_metrics && (
+                  <div className="metrics-section">
+                    <h3 className="metrics-title"> Scraper</h3>
+                    {Object.entries(metrics.scraper_metrics).map(([sitio, data]) => (
+                      <div key={sitio} className="metric-card">
+                        <h4 className="metric-site">{sitio}</h4>
+                        <div className="metric-row">
+                          <span className="metric-label">Procesadas:</span>
+                          <span className="metric-value">{data.total_urls_procesadas.toLocaleString()}</span>
+                        </div>
+                        <div className="metric-row">
+                          <span className="metric-label">Exitosas:</span>
+                          <span className="metric-value success">{data.scrape_exitosos.toLocaleString()}</span>
+                        </div>
+                        <div className="metric-row">
+                          <span className="metric-label">Fallidas:</span>
+                          <span className="metric-value error">{data.scrape_fallidos}</span>
+                        </div>
+                        <div className="metric-row">
+                          <span className="metric-label">Tasa de éxito:</span>
+                          <span className="metric-value success">{data.porcentaje_exito.toFixed(2)}%</span>
+                        </div>
+                        <div className="metric-row">
+                          <span className="metric-label">Velocidad:</span>
+                          <span className="metric-value">{data.noticias_por_minuto.toFixed(2)} noticias/min</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Progreso del Crawler */}
+                {metrics.crawler_progress && (
+                  <div className="metrics-section">
+                    <h3 className="metrics-title"> Progreso Actual</h3>
+                    <div className="metric-card">
+                      <h4 className="metric-site">{metrics.crawler_progress.sitio}</h4>
+                      <div className="metric-row">
+                        <span className="metric-label">Estado:</span>
+                        <span className={`metric-status ${metrics.crawler_progress.status}`}>
+                          {metrics.crawler_progress.status}
+                        </span>
+                      </div>
+                      <div className="progress-bar">
+                        <div 
+                          className="progress-fill" 
+                          style={{width: `${metrics.crawler_progress.porcentaje}%`}}
+                        ></div>
+                      </div>
+                      <div className="metric-row">
+                        <span className="metric-label">Progreso:</span>
+                        <span className="metric-value">
+                          {metrics.crawler_progress.categorias_procesadas} / {metrics.crawler_progress.total_categorias}
+                        </span>
+                      </div>
+                      <div className="metric-row">
+                        <span className="metric-label">URLs encontradas:</span>
+                        <span className="metric-value">{metrics.crawler_progress.urls_encontradas}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Resumen General */}
+                {(metrics.crawler_metrics || metrics.scraper_metrics) && (
+                  <div className="metrics-section">
+                    <h3 className="metrics-title"> Resumen General</h3>
+                    <div className="metric-card summary">
+                      {(() => {
+                        const stats = calculateNewsStats(metrics);
+                        return (
+                          <>
+                            <div className="metric-row highlight">
+                              <span className="metric-label">Total URLs:</span>
+                              <span className="metric-value">{stats.totalUrlsEncontradas.toLocaleString()}</span>
+                            </div>
+                            <div className="metric-row highlight">
+                              <span className="metric-label">Noticias procesadas:</span>
+                              <span className="metric-value">{stats.totalNoticiasProcesadas.toLocaleString()}</span>
+                            </div>
+                            <div className="metric-row highlight">
+                              <span className="metric-label">Tasa éxito promedio:</span>
+                              <span className="metric-value success">{stats.tasaExitoPromedio.toFixed(2)}%</span>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              <div className="stat-item">
-                <img src="/images/charts/grafico3.svg" alt="Gráfico 3" className="stat-image" />
+            ) : (
+              <div className="metrics-error">
+                <p> No se pudieron cargar las métricas</p>
               </div>
-              
-              <div className="stat-item">
-                <img src="/images/charts/grafico4.svg" alt="Gráfico 4" className="stat-image" />
-              </div>
-            </div>
+            )}
           </div>
         </aside>
       </div>
