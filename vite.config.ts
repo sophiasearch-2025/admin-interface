@@ -13,5 +13,16 @@ export default defineConfig({
         manualChunks: undefined,
       }
     }
+  },
+  server: {
+    port: 5173,
+    proxy: {
+      // Proxy para la API de métricas (evita CORS en desarrollo)
+      '/api': {
+        target: 'http://172.105.21.15:3010',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   }
 })
