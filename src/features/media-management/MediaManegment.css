@@ -1,3 +1,158 @@
+.drop-zone {
+  border: 3px solid #343434;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  background-color: #1d1d1b;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin: 0px 0px 10px;
+}
+
+.drop-zone.dragging {
+  border-color: #343434;
+  background-color: #818181;
+  transform: scale(1.02);
+}
+
+.drop-zone.has-file {
+  border-color: #343434;
+  background-color: #1d1d1b;
+}
+
+.drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.drop-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.drop-content h4 {
+  color: #f2f2f2;
+  margin: 0;
+  font-size: 18px;
+}
+
+.drop-content p {
+  color: #aaa;
+  margin: 0;
+  font-size: 14px;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-label {
+  background-color: #2a3176;
+  color: #f2f2f2;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  border: none;
+}
+
+.file-label:hover {
+  background-color: rgba(42, 49, 118, 0.8);
+}
+
+.file-requirements {
+  margin-top: 10px;
+}
+
+.file-requirements small {
+  color: #888;
+  font-style: italic;
+}
+
+/* Estilos para información del archivo */
+.file-info {
+  text-align: left;
+  width: 100%;
+}
+
+.file-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1d1d1b;
+  border-radius: 6px;
+}
+
+.file-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-icon {
+  font-size: 16px;
+}
+
+.file-name {
+  color: #f2f2f2;
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-size {
+  color: #818181;
+  font-size: 16px;
+}
+
+/* Estilos para preview del código */
+.code-preview {
+  margin: 10px;
+}
+
+.code-preview h6 {
+  color: #f2f2f2;
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.code-content {
+  background-color: #1d1d1b;
+  border: 3px solid #343434;
+  border-radius: 5px;
+  padding: 15px;
+  max-height: 10rem;
+  overflow-y: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  line-height: 1;
+  color: #f2f2f2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.code-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.code-content::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.code-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.code-content::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
 .media-container{
     width: 100%;
     height: 100%;
@@ -128,7 +283,8 @@
 }
 
 .modal-content {
-    background: #1d1d1d;
+    background: #1d1d1b;
+    border: 3px solid #818181;
     padding: 2rem;
     border-radius: 20px;
     min-width: 300px;
