@@ -62,16 +62,18 @@ const LoginForm: React.FC = () => {
                         {loading ? 'Verificando...' : 'Iniciar Sesión'}
                     </button>
                 </form>
-            
-                <div className="demo-credentials">
+                {/*
+                    <div className="demo-credentials">
                         <h3>Credenciales de prueba:</h3>
                         <div className="credential-item">
                             <strong>Admin:</strong> admin / admin123
                         </div>
                         <div className="credential-item">
-                    <strong>Test:</strong> test / test
-                    </div>
-                </div>
+                            <strong>Test:</strong> test / test
+                        </div>
+                    </div> */
+                }
+                
                 <footer className="login-footer">
                     <img src="/images/logos/LogoSophia.svg" alt="Logo" className="footer-logo" />
                 </footer>

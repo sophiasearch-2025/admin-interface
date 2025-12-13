@@ -4,7 +4,7 @@ import type { User, AuthContextType } from '../types/auth';
 
 // users hardcodeados para el prototipo
 const User_Map : Map<string, string> = new Map([
-    ['admin', 'admin123'],
+    ['Sophia', 'Sophia2025'],
     ['test', 'test']
 ]);
 
