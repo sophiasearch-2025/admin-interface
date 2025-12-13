@@ -12,8 +12,8 @@ export const API_CONFIG = {
   MEDIA_DATA_COLLECTOR: isDevelopment ? '' : `http://${SERVER_IP}:3010`,
   
   // Configuración de timeouts (en milisegundos)
-  TIMEOUT: 60000, // 60 segundos por defecto
-  TIMEOUT_LONG: 120000, // 120 segundos para operaciones largas
+  TIMEOUT: 99999999, // tiempo de espera para que no arroje timeout
+  TIMEOUT_LONG: 99999999, // tiempo de espera para que no arroje timeout
 };
 
 // Endpoints de las APIs
