@@ -67,9 +67,8 @@ const MediaManagement = () => {
     categoria: "",
     descripcion: ""
   });
-  const [errorMsg, setErrorMsg] = useState("");
 
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
