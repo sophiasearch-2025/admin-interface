@@ -446,4 +446,170 @@
     }
 }
 
+/* Estilos para métricas */
+.metrics-container {
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px);
+}
 
+.metrics-loading,
+.metrics-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #b0b0b0;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #4a4a48;
+    border-top: 4px solid #3b4895;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.metrics-section {
+    margin-bottom: 1.5rem;
+}
+
+.metrics-title {
+    color: #3b4895;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #2d2d2b;
+}
+
+.metric-card {
+    background-color: #2d2d2b;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #3a3a38;
+}
+
+.metric-card.summary {
+    background: linear-gradient(135deg, #2d2d2b 0%, #3a3a38 100%);
+    border: 2px solid #3b4895;
+}
+
+.metric-site {
+    color: #f2f2f2;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    text-transform: capitalize;
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #3a3a38;
+}
+
+.metric-row:last-child {
+    border-bottom: none;
+}
+
+.metric-row.highlight {
+    background-color: rgba(59, 72, 149, 0.1);
+    padding: 0.6rem;
+    border-radius: 4px;
+    margin: 0.25rem 0;
+    border-bottom: none;
+}
+
+.metric-label {
+    color: #b0b0b0;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.metric-value {
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.metric-value.success {
+    color: #4CAF50;
+}
+
+.metric-value.error {
+    color: #f44336;
+}
+
+.metric-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.metric-status.starting {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #FFC107;
+}
+
+.metric-status.running {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.metric-status.completed {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #2196F3;
+}
+
+.metric-status.error {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #3a3a38;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b4895 0%, #5a67d8 100%);
+    transition: width 0.3s ease;
+}
+
+/* Scrollbar para métricas */
+.metrics-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.metrics-container::-webkit-scrollbar-track {
+    background: #2d2d2b;
+    border-radius: 4px;
+}
+
+.metrics-container::-webkit-scrollbar-thumb {
+    background: #4a4a48;
+    border-radius: 4px;
+}
+
+.metrics-container::-webkit-scrollbar-thumb:hover {
+    background: #5a5a58;
+}

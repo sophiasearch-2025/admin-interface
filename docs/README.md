@@ -1,12 +1,22 @@
 # admin-interface
 
 ## 1. Propósito
-Interfaz administrativa para la gestión centralizada de datos y estadísticas de noticias, proporcionando herramientas para la administración de usuarios, configuración de procesos de web scraping y sistema de respaldos automatizado.
+Interfaz administrativa para la gestión centralizada de datos y estadísticas de noticias, proporcionando herramientas para la administración de usuarios y suscripciones, monitoreo de métricas de scraping, verificación de boletas de pago, configuración de procesos de web scraping y sistema de respaldos automatizado.
 
 
 ## 2. Interacción con otros subsistemas
-- **user-subscription-manager** : Obtenemos el listado de los usuarios registrados, para poder gestionarlos en el modulo **user-management**
-- **news-query-analysis** : Obtenemos las noticias que se recolectaron, junto con sus metadatos y metricas
+- **user-subscription-manager** (Puerto 3000): 
+  - Gestión completa de suscripciones de usuarios
+  - Aceptación y rechazo de solicitudes de suscripción entrantes
+  - Cambio de estados de suscripciones (activa, pausada, cancelada)
+  - Verificación de boletas de pago
+  - Renovación de suscripciones
+  
+- **media-data-collector** (Puerto 3010):
+  - Métricas en tiempo real del crawler y scraper de noticias
+  - Estadísticas de procesamiento por sitio web
+  - Progreso de categorías y URLs encontradas
+  - Tasas de éxito y velocidad de scraping
 
 
 ## 3. Documentación interna
@@ -23,25 +33,33 @@ Enlace a los documentos principales del subsistema:
 ### Funcionalidades Completadas:
 - Sistema de autenticación completo
 - Layout y navegación responsiva
-- Módulo de gestión de datos con estadísticas
+- Módulo de gestión de datos con visualización de métricas de scraping
+- Visualización de métricas en tiempo real (crawler y scraper)
+- Estadísticas por sitio web y resumen general
 - Editor de contenido con indicadores
 - Sidebars colapsables
-- Gestión de usuarios (visualización y administración)
+- Gestión de usuarios y suscripciones:
+  - Visualización de suscripciones activas
+  - Aceptar/rechazar solicitudes de suscripción entrantes
+  - Cambiar estado de suscripciones (activar, cancelar)
+  - Verificar y validar boletas de pago
+  - Renovar suscripciones próximas a vencer
 - Sistema de respaldos con funcionalidad de importación/exportación
 - Configuración de APIs y servicios
 - Sistema de timeouts configurables
+- Integración con APIs backend (user-management y media-data-collector)
 
 ### En Desarrollo:
-- Configuración avanzada de scraping
-- Sistema completo de notificaciones
-- Integración completa con APIs backend
+- Configuración avanzada de scraping (control de inicio/parada de procesos)
+- Sistema completo de notificaciones push
+- Gestión avanzada de medios de prensa
 
 ---
 
 ## Tecnologías Utilizadas
 
 ### Frontend
-- **React 18** - Biblioteca de interfaz de usuario
+- **React 19** - Biblioteca de interfaz de usuario
 - **TypeScript** - Tipado estático para JavaScript
 - **Vite** - Herramienta de build y desarrollo optimizada
 - **CSS3** - Estilos nativos sin frameworks externos
@@ -49,9 +67,11 @@ Enlace a los documentos principales del subsistema:
 
 ### Backend Integration
 - **REST APIs** - Integración con servicios externos
-- **User Management API** - Gestión de suscripciones de usuarios
+- **User Management API (Puerto 3000)** - Gestión completa de suscripciones
+- **Media Data Collector API (Puerto 3010)** - Métricas de scraping en tiempo real
 - **Timeout Management** - Sistema de timeouts configurables (30s por defecto)
 - **Error Handling** - Manejo robusto de errores de red
+- **CORS Configuration** - Configuración de proxy para desarrollo
 
 ### Arquitectura
 - **Component-Based Architecture** - Arquitectura basada en componentes
@@ -102,10 +122,10 @@ admin-interface/
 │   │   └── AuthContext.tsx         # ✅ Gestión de autenticación
 │   ├── features/                   # Módulos de funcionalidades
 │   │   ├── data-management/        # ✅ Implementado completo
-│   │   │   ├── DataManagement.tsx
+│   │   │   ├── DataManagement.tsx  # Visualización de métricas de scraping
 │   │   │   └── DataManagement.css
-│   │   ├── user-management/        # ✅ Implementado
-│   │   │   ├── UserManagement.tsx
+│   │   ├── user-management/        # ✅ Implementado completo
+│   │   │   ├── UserManagement.tsx  # Gestión de suscripciones y boletas
 │   │   │   └── UserManagement.css
 │   │   ├── scraping-config/        # 🚧 En desarrollo
 │   │   │   ├── ScrapingConfig.tsx
@@ -118,7 +138,9 @@ admin-interface/
 │   │       └── BackupManagement.css
 │   ├── services/                   # Servicios y APIs
 │   │   ├── api.ts                  # ✅ API base con timeouts
-│   │   └── subscriptions.ts        # ✅ Gestión de suscripciones
+│   │   ├── subscriptions.ts        # ✅ Gestión de suscripciones
+│   │   ├── users.ts                # ✅ Gestión de usuarios
+│   │   └── metrics.ts              # ✅ Servicio de métricas de scraping
 │   ├── types/                      # Definiciones TypeScript
 │   │   ├── auth.ts                 # ✅ Tipos de autenticación
 │   │   └── navigation.ts           # ✅ Tipos de navegación
@@ -150,7 +172,7 @@ admin-interface/
 ### Usuarios de Prueba
 | Usuario | Contraseña | Rol   | Descripción        |
 |---------|------------|-------|--------------------|
-| `admin` | `admin123` | Admin | Usuario de pruebas |
+| `Sophia` | `Sophia2025` | Admin | Usuario principal |
 | `test`  | `test`     | Admin | Usuario de pruebas |
 
 ---
@@ -162,18 +184,42 @@ admin-interface/
 2. Usa cualquiera de las credenciales de prueba
 3. El sistema te redirigirá al dashboard principal
 
-### Gestión de Datos
+### Gestión de Datos y Métricas
 1. Utiliza los botones de la barra superior para expandir sidebars
-2. **Sidebar Derecho**: Visualiza estadísticas y gráficos
-3. **Sidebar Izquierdo**: Corrige errores en noticias
+2. **Sidebar Derecho - Métricas**: Visualiza métricas del scraper en tiempo real
+   - Estadísticas de crawler (URLs encontradas, categorías)
+   - Estadísticas de scraper (noticias procesadas, tasa de éxito)
+   - Progreso actual por sitio web
+   - Resumen general del sistema
+   - Actualización automática cada 30 segundos
+3. **Sidebar Izquierdo - Correcciones**: Edita noticias con errores
    - Selecciona una noticia del dropdown
    - Edita el contenido directamente
    - Guarda los cambios
+
+### Gestión de Usuarios y Suscripciones
+1. **Visualizar Suscripciones**: Lista completa de usuarios con sus estados
+2. **Aceptar/Rechazar Solicitudes**: 
+   - Revisa solicitudes pendientes de suscripción
+   - Valida la boleta de pago adjunta
+   - Acepta o rechaza la solicitud con un clic
+3. **Cambiar Estado de Suscripción**:
+   - Activar suscripciones pausadas
+   - Pausar suscripciones temporalmente
+   - Cancelar suscripciones
+4. **Verificar Boletas de Pago**:
+   - Visualiza la imagen de la boleta
+   - Confirma los datos de pago
+   - Valida información del usuario
+5. **Renovar Suscripciones**:
+   - Identifica suscripciones próximas a vencer
+   - Renueva por un periodo adicional
 
 ### Navegación
 - Solo un sidebar puede estar expandido a la vez
 - El contenido central se oculta cuando un sidebar está activo
 - Navegación responsive en dispositivos móviles
+- Indicadores visuales de estado (activo, pausado, cancelado)
 
 ---
 
@@ -196,18 +242,26 @@ admin-interface/
 - [x] Editor de contenido con sidebars
 
 ### Fase 2 - Funcionalidades Core ✅ COMPLETADA
-- [x] Gestión completa de usuarios
+- [x] Gestión completa de usuarios y suscripciones
+- [x] Aceptar/rechazar solicitudes de suscripción
+- [x] Cambiar estados de suscripciones (activar, pausar, cancelar)
+- [x] Verificación de boletas de pago
+- [x] Renovación de suscripciones
 - [x] Sistema de respaldos con modales
 - [x] Configuración de APIs y servicios
 - [x] Sistema de timeouts configurables
 - [x] Organización de assets (imágenes)
+- [x] Visualización de métricas de scraping en tiempo real
+- [x] Estadísticas de crawler y scraper por sitio
 
 ### Fase 3 - Características Avanzadas 🚧 EN PROGRESO
 - [x] Configuración Docker y Nginx
-- [x] Integración con APIs externas
-- [ ] Configuración avanzada de scraping
-- [ ] Gestión completa de medios
-- [ ] Sistema completo de notificaciones
+- [x] Integración con APIs externas (user-management y media-data-collector)
+- [ ] Control de inicio/parada de procesos de scraping
+- [ ] Configuración avanzada de scraping (intervalos, categorías)
+- [ ] Gestión completa de medios de prensa
+- [ ] Sistema completo de notificaciones push
+- [ ] Historial de cambios de estado de suscripciones
 
 ### Fase 4 - Optimización 📋 PENDIENTE
 - [ ] Performance optimization

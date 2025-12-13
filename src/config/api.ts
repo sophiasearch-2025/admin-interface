@@ -1,16 +1,19 @@
 // Configuración básica de las APIs
 const SERVER_IP = '172.105.21.15';
+const isDevelopment = import.meta.env.DEV;
 
 export const API_CONFIG = {
   // Cambia estos puertos por los correctos de tu servidor
   USER_MANAGEMENT_PORT: 3000,
+  MEDIA_DATA_COLLECTOR_PORT: 3010,
   
-  // URLs completas
+  // URLs completas - en desarrollo usa proxy, en producción usa IP directa
   USER_MANAGEMENT: `http://${SERVER_IP}:3000`,
+  MEDIA_DATA_COLLECTOR: isDevelopment ? '' : `http://${SERVER_IP}:3010`,
   
   // Configuración de timeouts (en milisegundos)
-  TIMEOUT: 30000, // 30 segundos por defecto
-  TIMEOUT_LONG: 60000, // 60 segundos para operaciones largas
+  TIMEOUT: 99999999, // tiempo de espera para que no arroje timeout
+  TIMEOUT_LONG: 99999999, // tiempo de espera para que no arroje timeout
 };
 
 // Endpoints de las APIs
@@ -26,5 +29,8 @@ export const ENDPOINTS = {
   SUBSCRIPTIONS_CHECK_EXPIRING: '/api/subscriptions/check-expiring', // POST: verificar expiración
   ADMIN_RUN_NOTIFICATIONS: '/api/admin/run-notifications', // POST: ejecutar notificaciones
 
+  // Para media-data-collector API (puerto 3010) - Maneja MÉTRICAS
+  METRICS_ROOT: '/api/metrics',                     // GET: información de la API de métricas
+  METRICS_GET: '/api/metrics/',                     // GET: obtener métricas del sistema y noticias
 
 };

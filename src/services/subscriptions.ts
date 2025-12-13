@@ -1,6 +1,6 @@
 // Funciones específicas para manejar suscripciones
 import { apiGet, apiPatch } from './api';
-import { ENDPOINTS } from '../config/api';
+import { ENDPOINTS, API_CONFIG } from '../config/api';
 
 // Tipos de datos basados en la respuesta real de la API
 export interface Subscription {
@@ -137,5 +137,54 @@ export async function getSubscriptionById(subscriptionId: string): Promise<Subsc
   } catch (error) {
     console.error('❌ Error al obtener suscripción:', error);
     return null;
+  }
+}
+
+// Función para crear una nueva suscripción
+export interface CreateSubscriptionData {
+  userId: string;
+  planId: string;
+  userEmail: string;
+  userName?: string;
+  planName?: string;
+  precio?: number;
+}
+
+export async function createSubscription(data: CreateSubscriptionData): Promise<Subscription | null> {
+  try {
+    const url = `${API_CONFIG.USER_MANAGEMENT}${ENDPOINTS.SUBSCRIPTIONS_CREATE}`;
+    console.log('➕ Creando nueva suscripción...');
+    console.log('📍 URL completa:', url);
+    console.log('📦 Datos a enviar:', JSON.stringify(data, null, 2));
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    console.log('📡 Status de respuesta:', response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
+      console.error('❌ Error del servidor:', errorData);
+      throw new Error(errorData.message || `Error HTTP: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Respuesta completa del servidor:', JSON.stringify(result, null, 2));
+
+    if (result && result.success && result.data) {
+      console.log('✅ Suscripción creada con ID:', result.data.id || result.data.subscriptionId);
+      return result.data;
+    }
+
+    console.warn('⚠️ Respuesta exitosa pero sin data:', result);
+    return null;
+  } catch (error) {
+    console.error('❌ Error al crear suscripción:', error);
+    throw error;
   }
 }
