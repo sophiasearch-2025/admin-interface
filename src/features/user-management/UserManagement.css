@@ -289,6 +289,73 @@
     font-size: 16px;
 }
 
+/* Estilos para usuarios pendientes */
+.pending-card {
+    border: 2px solid #ff9800 !important;
+}
+
+.pending-avatar {
+    background: linear-gradient(135deg, #ff9800, #f57c00) !important;
+}
+
+.user-company {
+    color: #aaa;
+    font-size: 13px;
+    margin: 5px 0;
+    text-align: center;
+}
+
+/* Botones de aprobación/rechazo */
+.btn-approve {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-approve:hover:not(:disabled) {
+    background-color: #45a049;
+}
+
+.btn-approve:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-reject {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-reject:hover:not(:disabled) {
+    background-color: #da190b;
+}
+
+.btn-reject:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-boleta:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 /* Scrollbar personalizada */
 .users-container::-webkit-scrollbar {
     width: 8px;
