@@ -84,7 +84,6 @@ async function makeMetricsRequest(endpoint: string, options: RequestInit = {}) {
   try {
     const response = await fetch(url, {
       method: options.method || 'GET',
-      mode: 'cors', // Especificar modo CORS
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
