@@ -1,6 +1,5 @@
 // Configuración básica de las APIs
 const SERVER_IP = '172.105.21.15';
-const isDevelopment = import.meta.env.DEV;
 
 export const API_CONFIG = {
   // Cambia estos puertos por los correctos de tu servidor
