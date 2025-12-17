@@ -320,4 +320,27 @@
     color: #f2f2f2;
 }
 
+/* Estilos para mensaje de error */
+.error-message {
+  background-color: #ff4444;
+  color: white;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Estilos para última actualización */
+.last-update {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-left: 1rem;
+  font-style: italic;
+}
+
+.media-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
