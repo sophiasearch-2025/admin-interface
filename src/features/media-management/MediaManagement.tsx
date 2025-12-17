@@ -1,169 +1,206 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./MediaManegment.css";
+import { getNewsMetrics } from "../../services/metrics";
+import type { NewsMetrics } from "../../services/metrics";
+
+interface MediaInfo {
+  nombre: string;
+  url: string;
+  pais: string;
+  categoria: string;
+  descripcion: string;
+  totalCategorias?: number;
+  urlsEncontradas?: number;
+  noticiasExitosas?: number;
+  noticiasFallidas?: number;
+  tasaExito?: number;
+  velocidadCrawler?: number;
+  velocidadScraper?: number;
+}
 
 const MediaManagement = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [mediaSamples, setMediaSamples] = useState([
-    { nombre: "El País", url: "https://elpais.com", pais: "España", categoria: "General", descripcion: "Diario español de información general" },
-    { nombre: "The New York Times", url: "https://nytimes.com", pais: "Estados Unidos", categoria: "General", descripcion: "Periódico estadounidense de referencia" },
-    { nombre: "BBC News", url: "https://bbc.com/news", pais: "Reino Unido", categoria: "Internacional", descripcion: "Servicio de noticias de la BBC" },
-    { nombre: "Le Monde", url: "https://lemonde.fr", pais: "Francia", categoria: "General", descripcion: "Diario francés de referencia" },
-    { nombre: "CNN", url: "https://cnn.com", pais: "Estados Unidos", categoria: "Televisión", descripcion: "Canal de noticias 24 horas" },
-    { nombre: "The Guardian", url: "https://theguardian.com", pais: "Reino Unido", categoria: "General", descripcion: "Periódico británico progresista" },
-    { nombre: "Reuters", url: "https://reuters.com", pais: "Reino Unido", categoria: "Agencia", descripcion: "Agencia internacional de noticias" },
-    { nombre: "Associated Press", url: "https://apnews.com", pais: "Estados Unidos", categoria: "Agencia", descripcion: "Agencia de noticias estadounidense" },
-    { nombre: "La Nación", url: "https://lanacion.com.ar", pais: "Argentina", categoria: "General", descripcion: "Diario argentino tradicional" },
-    { nombre: "Clarín", url: "https://clarin.com", pais: "Argentina", categoria: "General", descripcion: "Principal diario de Argentina" },
-    { nombre: "El Universal", url: "https://eluniversal.com.mx", pais: "México", categoria: "General", descripcion: "Periódico mexicano de circulación nacional" },
-    { nombre: "O Globo", url: "https://oglobo.globo.com", pais: "Brasil", categoria: "General", descripcion: "Diario brasileño de Río de Janeiro" },
-    { nombre: "Folha de S.Paulo", url: "https://folha.uol.com.br", pais: "Brasil", categoria: "General", descripcion: "Principal periódico de Brasil" },
-    { nombre: "El Tiempo", url: "https://eltiempo.com", pais: "Colombia", categoria: "General", descripcion: "Periódico colombiano líder" },
-    { nombre: "Der Spiegel", url: "https://spiegel.de", pais: "Alemania", categoria: "Revista", descripcion: "Revista semanal alemana" },
-    { nombre: "Die Zeit", url: "https://zeit.de", pais: "Alemania", categoria: "General", descripcion: "Semanario alemán de calidad" },
-    { nombre: "La Repubblica", url: "https://repubblica.it", pais: "Italia", categoria: "General", descripcion: "Diario italiano progresista" },
-    { nombre: "Corriere della Sera", url: "https://corriere.it", pais: "Italia", categoria: "General", descripcion: "Periódico italiano histórico" },
-    { nombre: "El Mundo", url: "https://elmundo.es", pais: "España", categoria: "General", descripcion: "Diario español de información general" },
-    { nombre: "ABC", url: "https://abc.es", pais: "España", categoria: "General", descripcion: "Periódico español conservador" },
-    { nombre: "Financial Times", url: "https://ft.com", pais: "Reino Unido", categoria: "Economía", descripcion: "Diario económico internacional" },
-    { nombre: "The Wall Street Journal", url: "https://wsj.com", pais: "Estados Unidos", categoria: "Economía", descripcion: "Periódico económico estadounidense" },
-    { nombre: "Bloomberg", url: "https://bloomberg.com", pais: "Estados Unidos", categoria: "Economía", descripcion: "Medio especializado en finanzas" },
-    { nombre: "Al Jazeera", url: "https://aljazeera.com", pais: "Qatar", categoria: "Internacional", descripcion: "Canal de noticias árabe" },
-    { nombre: "France 24", url: "https://france24.com", pais: "Francia", categoria: "Internacional", descripcion: "Canal de noticias francés" },
-    { nombre: "Deutsche Welle", url: "https://dw.com", pais: "Alemania", categoria: "Internacional", descripcion: "Medio internacional alemán" },
-    { nombre: "NHK World", url: "https://nhk.or.jp/world", pais: "Japón", categoria: "Internacional", descripcion: "Medio público japonés" },
-    { nombre: "The Times", url: "https://thetimes.co.uk", pais: "Reino Unido", categoria: "General", descripcion: "Diario británico histórico" },
-    { nombre: "Washington Post", url: "https://washingtonpost.com", pais: "Estados Unidos", categoria: "General", descripcion: "Periódico estadounidense influyente" },
-    { nombre: "USA Today", url: "https://usatoday.com", pais: "Estados Unidos", categoria: "General", descripcion: "Diario nacional estadounidense" },
-    { nombre: "Los Angeles Times", url: "https://latimes.com", pais: "Estados Unidos", categoria: "General", descripcion: "Principal diario de California" },
-    { nombre: "Chicago Tribune", url: "https://chicagotribune.com", pais: "Estados Unidos", categoria: "General", descripcion: "Periódico de Chicago" },
-    { nombre: "El Mercurio", url: "https://elmercurio.com", pais: "Chile", categoria: "General", descripcion: "Diario chileno tradicional" },
-    { nombre: "La Tercera", url: "https://latercera.com", pais: "Chile", categoria: "General", descripcion: "Periódico chileno de actualidad" },
-    { nombre: "El Comercio", url: "https://elcomercio.pe", pais: "Perú", categoria: "General", descripcion: "Principal diario peruano" },
-    { nombre: "La Vanguardia", url: "https://lavanguardia.com", pais: "España", categoria: "General", descripcion: "Diario catalán de referencia" },
-    { nombre: "Público", url: "https://publico.es", pais: "España", categoria: "General", descripcion: "Periódico español progresista" },
-    { nombre: "Expansión", url: "https://expansion.com", pais: "España", categoria: "Economía", descripcion: "Diario económico español" },
-    { nombre: "Cinco Días", url: "https://cincodias.elpais.com", pais: "España", categoria: "Economía", descripcion: "Periódico económico español" },
-    { nombre: "Sport", url: "https://sport.es", pais: "España", categoria: "Deportes", descripcion: "Diario deportivo catalán" },
-    { nombre: "Marca", url: "https://marca.com", pais: "España", categoria: "Deportes", descripcion: "Principal diario deportivo español" },
-    { nombre: "AS", url: "https://as.com", pais: "España", categoria: "Deportes", descripcion: "Diario deportivo español" },
-    { nombre: "L'Équipe", url: "https://lequipe.fr", pais: "Francia", categoria: "Deportes", descripcion: "Diario deportivo francés" },
-    { nombre: "Gazzetta dello Sport", url: "https://gazzetta.it", pais: "Italia", categoria: "Deportes", descripcion: "Diario deportivo italiano" },
-    { nombre: "ESPN", url: "https://espn.com", pais: "Estados Unidos", categoria: "Deportes", descripcion: "Red de medios deportivos" },
-    { nombre: "Sky News", url: "https://news.sky.com", pais: "Reino Unido", categoria: "Televisión", descripcion: "Canal de noticias británico" },
-    { nombre: "Fox News", url: "https://foxnews.com", pais: "Estados Unidos", categoria: "Televisión", descripcion: "Canal de noticias conservador" },
-    { nombre: "MSNBC", url: "https://msnbc.com", pais: "Estados Unidos", categoria: "Televisión", descripcion: "Canal de noticias progresista" },
-    { nombre: "Politico", url: "https://politico.com", pais: "Estados Unidos", categoria: "Política", descripcion: "Medio especializado en política" },
-    { nombre: "The Economist", url: "https://economist.com", pais: "Reino Unido", categoria: "Revista", descripcion: "Revista semanal de análisis" }
-  ]);
-
-  const [archivoPython, setArchivoPython] = useState<File | null>(null);
-  const [codigoPython, setCodigoPython] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
-
-  const [formData, setFormData] = useState({
-    nombre: "",
-    url: "",
-    pais: "",
-    categoria: "",
-    descripcion: ""
-  });
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.name.endsWith('.py')) {
-        setArchivoPython(file);
-        
-        // Leer el contenido del archivo
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setCodigoPython(event.target?.result as string || '');
-        };
-        reader.readAsText(file);
-      } else {
-        alert('Por favor, selecciona solo archivos Python (.py)');
-      }
+  // Base de datos estática de información de medios
+  const mediaInfoDatabase: Record<string, { url: string; pais: string; categoria: string; descripcion: string }> = {
+    'biobiochile': {
+      url: 'https://www.biobiochile.cl',
+      pais: 'Chile',
+      categoria: 'General',
+      descripcion: 'Medio digital chileno de noticias generales'
+    },
+    'latercera': {
+      url: 'https://www.latercera.com',
+      pais: 'Chile',
+      categoria: 'General',
+      descripcion: 'Periódico chileno de actualidad'
+    },
+    'emol': {
+      url: 'https://www.emol.com',
+      pais: 'Chile',
+      categoria: 'General',
+      descripcion: 'El Mercurio Online, principal medio digital de Chile'
+    },
+    'elmercurio': {
+      url: 'https://www.elmercurio.com',
+      pais: 'Chile',
+      categoria: 'General',
+      descripcion: 'Diario chileno tradicional'
+    },
+    'cnnchile': {
+      url: 'https://www.cnnchile.com',
+      pais: 'Chile',
+      categoria: 'Televisión',
+      descripcion: 'Canal de noticias chileno'
+    },
+    'cooperativa': {
+      url: 'https://www.cooperativa.cl',
+      pais: 'Chile',
+      categoria: 'Radio',
+      descripcion: 'Radio y medio digital chileno'
+    },
+    'elpais': {
+      url: 'https://elpais.com',
+      pais: 'España',
+      categoria: 'General',
+      descripcion: 'Diario español de información general'
+    },
+    'bbc': {
+      url: 'https://www.bbc.com',
+      pais: 'Reino Unido',
+      categoria: 'Internacional',
+      descripcion: 'Servicio de noticias de la BBC'
+    },
+    'cnn': {
+      url: 'https://www.cnn.com',
+      pais: 'Estados Unidos',
+      categoria: 'Televisión',
+      descripcion: 'Canal de noticias 24 horas'
+    },
+    'clarin': {
+      url: 'https://www.clarin.com',
+      pais: 'Argentina',
+      categoria: 'General',
+      descripcion: 'Principal diario de Argentina'
+    },
+    'lanacion': {
+      url: 'https://www.lanacion.com.ar',
+      pais: 'Argentina',
+      categoria: 'General',
+      descripcion: 'Diario argentino tradicional'
+    },
+    'eltiempo': {
+      url: 'https://www.eltiempo.com',
+      pais: 'Colombia',
+      categoria: 'General',
+      descripcion: 'Periódico colombiano líder'
+    },
+    'elperu': {
+      url: 'https://elcomercio.pe',
+      pais: 'Perú',
+      categoria: 'General',
+      descripcion: 'Principal diario peruano'
     }
   };
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.name.endsWith('.py')) {
-      setArchivoPython(file);
+  const [mediaSamples, setMediaSamples] = useState<MediaInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  
+  // Función para cargar métricas de medios desde la API
+  const loadMediaMetrics = async () => {
+    try {
+      setLoading(true);
+      setError(null);
       
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setCodigoPython(event.target?.result as string || '');
-      };
-      reader.readAsText(file);
-    } else {
-      alert('Por favor, selecciona un archivo Python (.py)');
+      const response = await getNewsMetrics();
+      
+      if (response.success && response.data) {
+        const newsData = response.data as NewsMetrics;
+        const mediaList: MediaInfo[] = [];
+        
+        // Obtener todos los sitios únicos desde crawler y scraper
+        const crawlerSites = newsData.crawler_metrics ? Object.keys(newsData.crawler_metrics) : [];
+        const scraperSites = newsData.scraper_metrics ? Object.keys(newsData.scraper_metrics) : [];
+        const allSites = [...new Set([...crawlerSites, ...scraperSites])];
+        
+        // Construir información de cada medio desde la API
+        allSites.forEach(siteName => {
+          const crawlerData = newsData.crawler_metrics?.[siteName];
+          const scraperData = newsData.scraper_metrics?.[siteName];
+          
+          // Buscar información estática del medio (case-insensitive)
+          const siteKey = siteName.toLowerCase().replace(/\s+/g, '');
+          const staticInfo = mediaInfoDatabase[siteKey] || {
+            url: '-',
+            pais: '-',
+            categoria: '-',
+            descripcion: '-'
+          };
+          
+          mediaList.push({
+            nombre: siteName,
+            ...staticInfo,
+            totalCategorias: crawlerData?.total_categorias,
+            urlsEncontradas: crawlerData?.total_urls_encontradas,
+            noticiasExitosas: scraperData?.scrape_exitosos,
+            noticiasFallidas: scraperData?.scrape_fallidos,
+            tasaExito: scraperData?.porcentaje_exito,
+            velocidadCrawler: crawlerData?.urls_por_minuto,
+            velocidadScraper: scraperData?.noticias_por_minuto,
+          });
+        });
+        
+        setMediaSamples(mediaList);
+        setLastUpdate(new Date());
+      } else {
+        setError(response.error || 'Error al obtener métricas');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+      console.error('Error cargando métricas:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const limpiarArchivo = () => {
-    setArchivoPython(null);
-    setCodigoPython('');
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      formData.nombre &&
-      formData.url &&
-      formData.pais &&
-      formData.categoria &&
-      formData.descripcion &&
-      archivoPython
-    ) {
-      setMediaSamples([...mediaSamples, formData]);
-      setFormData({
-        nombre: "",
-        url: "",
-        pais: "",
-        categoria: "",
-        descripcion: ""
-      });
-      setArchivoPython(null);
-      setCodigoPython("");
-      setShowModal(false);
-    } 
-  };
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    loadMediaMetrics();
+    
+    // Actualizar cada 30 segundos
+    const interval = setInterval(loadMediaMetrics, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="media-container">
       <div className="media-header"> 
         <h1 className="media-title">Medios de Prensa</h1>
         <div className="media-actions">
-          <button className="media-btn" onClick={() => setShowModal(true)}>
-            Agregar Medio
+          <button 
+            className="media-btn" 
+            onClick={loadMediaMetrics}
+            disabled={loading}
+          >
+            {loading ? 'Actualizando...' : 'Actualizar'}
           </button>
-          <button className="media-btn">Borrar todo</button>
+          {lastUpdate && (
+            <span className="last-update">
+              Última actualización: {lastUpdate.toLocaleTimeString()}
+            </span>
+          )}
         </div>
       </div>
+
+      {error && (
+        <div className="error-message">
+          ⚠️ {error}
+        </div>
+      )}
+
       <div className="media-table-container">
-      <table className="media-table">
+        <table className="media-table">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -171,141 +208,37 @@ const MediaManagement = () => {
               <th>País</th>
               <th>Categoría</th>
               <th>Descripción</th>
+              <th>Categorías</th>
             </tr>
           </thead>
           <tbody>
-            {mediaSamples.map((medio, idx) => (
-              <tr key={idx}>
-                <td>{medio.nombre}</td>
-                <td>{medio.url}</td>
-                <td>{medio.pais}</td>
-                <td>{medio.categoria}</td>
-                <td>{medio.descripcion}</td>
+            {loading && mediaSamples.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
+                  Cargando métricas...
+                </td>
               </tr>
-            ))}
+            ) : mediaSamples.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
+                  No hay medios configurados
+                </td>
+              </tr>
+            ) : (
+              mediaSamples.map((medio, idx) => (
+                <tr key={idx}>
+                  <td><strong>{medio.nombre}</strong></td>
+                  <td>{medio.url !== '-' ? <a href={medio.url} target="_blank" rel="noopener noreferrer">{medio.url}</a> : '-'}</td>
+                  <td>{medio.pais}</td>
+                  <td>{medio.categoria}</td>
+                  <td>{medio.descripcion}</td>
+                  <td>{medio.totalCategorias ?? '-'}</td>
+                </tr>
+              ))
+            )}
           </tbody>
-      </table>
+        </table>
       </div>
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <form className="media-form" onSubmit={handleSubmit}>
-              <input 
-                type="text" 
-                name="nombre"
-                placeholder="Nombre medio" 
-                value={formData.nombre}
-                onChange={handleInputChange}
-                required
-              />
-              <input 
-                type="text" 
-                name="url"
-                placeholder="URL" 
-                value={formData.url}
-                onChange={handleInputChange}
-                required
-              />
-              <input 
-                type="text" 
-                name="pais"
-                placeholder="País" 
-                value={formData.pais}
-                onChange={handleInputChange}
-                required
-              />
-              <input 
-                type="text" 
-                name="categoria"
-                placeholder="Categoría" 
-                value={formData.categoria}
-                onChange={handleInputChange}
-                required
-              />
-              <input 
-                type="text" 
-                name="descripcion"
-                placeholder="Descripción" 
-                value={formData.descripcion}
-                onChange={handleInputChange}
-                required
-              />
-              <div 
-              className={`drop-zone ${isDragging ? 'dragging' : ''} ${archivoPython ? 'has-file' : ''}`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              >
-              {!archivoPython ? (
-                <div className="drop-content">
-                  <div className="drop-icon">🐍</div>
-                  <h4>Arrastra aquí el script de recolección para este medio</h4>
-                  <input 
-                    type="file" 
-                    accept=".py"
-                    onChange={handleFileInput}
-                    className="file-input"
-                    id="python-file"
-                  />
-                  <label htmlFor="python-file" className="file-label">
-                    o haz clic aquí para seleccionar archivo
-                  </label>
-                  <div className="file-requirements">
-                    <small>Solo archivos Python (.py) son permitidos</small>
-                  </div>
-                </div>
-              ) : (
-                <div className="file-info">
-                  <div className="file-header">
-                    <div className="file-details">
-                      <span className="file-icon">📄</span>
-                      <div>
-                        <h5 className="file-name">
-                          <span>{archivoPython.name}</span>
-                          <small className="file-size">{(archivoPython.size / 1024).toFixed(2)} KB</small>
-                        </h5>
-                      </div>
-                    </div>
-                    <button 
-                      className="btn-delete"
-                      onClick={limpiarArchivo}
-                      title="Eliminar archivo"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                  
-                  {/* Preview del código */}
-                  <div className="code-preview">
-                    <pre className="code-content">
-                      <code>{codigoPython}</code>
-                    </pre>
-                  </div>
-                </div>
-              )}
-            </div>
-              <button
-                type="submit"
-                className="media-btn"
-              >
-                Guardar
-              </button>
-              <button
-                type="button"
-                className="close-btn"
-                onClick={() => {
-                  setShowModal(false);
-                  setArchivoPython(null);
-                  setCodigoPython('');
-                  setFormData({ nombre: '', url: '', pais: '', categoria: '', descripcion: '' });
-                }}
-              >
-                Cancelar
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
