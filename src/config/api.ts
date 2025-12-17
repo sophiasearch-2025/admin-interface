@@ -7,9 +7,9 @@ export const API_CONFIG = {
   USER_MANAGEMENT_PORT: 3000,
   MEDIA_DATA_COLLECTOR_PORT: 3010,
   
-  // URLs completas - en desarrollo usa proxy, en producción usa IP directa
+  // URLs completas - en desarrollo usa proxy vacío, en producción usa proxy de nginx (mismo origen)
   USER_MANAGEMENT: `http://${SERVER_IP}:3000`,
-  MEDIA_DATA_COLLECTOR: isDevelopment ? '' : `http://${SERVER_IP}:3010`,
+  MEDIA_DATA_COLLECTOR: '', // Usar proxy de nginx en mismo origen
   
   // Configuración de timeouts (en milisegundos)
   TIMEOUT: 99999999, // tiempo de espera para que no arroje timeout
